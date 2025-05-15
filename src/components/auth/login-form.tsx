@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, KeyRound, User, Loader2, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, KeyRound, User, Loader2, ArrowRight, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -61,24 +61,31 @@ export function LoginForm() {
         loginFailuresInLastHour: 0, // Placeholder, integrate with actual tracking
       };
 
-      await new Promise(resolve => setTimeout(resolve, 750)); // Simulate network delay
+      // Simulate network delay and AI processing
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       const securityResult = await enhanceSecurity(securityInput);
 
       if (securityResult.isSuspicious) {
         toast({
           variant: "destructive",
-          title: "Login Attempt Blocked",
+          title: (
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5" /> Login Alert
+            </div>
+          ),
           description: securityResult.reason || "Suspicious activity detected. Please contact support.",
-          duration: 5000,
+          duration: 6000,
         });
       } else {
         toast({
-          title: "Login Successful",
-          description: "Welcome to the portal!",
+          title: "Access Granted!",
+          description: "Welcome to the AccessHub portal.",
           duration: 5000,
         });
-        // form.reset(); // Consider if form reset is desired after successful login
+        // Consider navigation or form reset here
+        // router.push('/dashboard');
+        // form.reset();
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -94,16 +101,16 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-lg rounded-lg border border-border/50 bg-card">
-      <CardHeader className="text-center pt-8 pb-6">
-        <CardTitle className="text-3xl font-semibold tracking-tight text-foreground">
+    <Card className="w-full max-w-md shadow-xl rounded-lg border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl">
+      <CardHeader className="text-center pt-10 pb-6">
+        <CardTitle className="text-4xl font-bold tracking-tight text-foreground">
           AccessHub Portal
         </CardTitle>
         <CardDescription className="pt-2 text-md text-muted-foreground">
-          Sign in to your account
+          Securely sign in to your corporate account.
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-7 pb-8">
+      <CardContent className="px-8 pb-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -111,16 +118,17 @@ export function LoginForm() {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" /> Username
-                  </FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Username</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="your.username"
-                      {...field}
-                      className="py-3 text-base focus:border-primary rounded-md"
-                      aria-label="Username or Email"
-                    />
+                    <div className="relative flex items-center">
+                      <User className="absolute left-3 h-5 w-5 text-muted-foreground peer-focus:text-primary transition-colors" />
+                      <Input
+                        placeholder="your.username@company.com"
+                        {...field}
+                        className="py-3 pl-10 text-base rounded-md peer focus:border-primary"
+                        aria-label="Username or Email"
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,23 +140,22 @@ export function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <KeyRound className="h-4 w-4 text-muted-foreground" /> Password
-                  </FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Password</FormLabel>
                   <FormControl>
-                    <div className="relative">
+                    <div className="relative flex items-center">
+                       <KeyRound className="absolute left-3 h-5 w-5 text-muted-foreground peer-focus:text-primary transition-colors" />
                       <Input
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         {...field}
-                        className="py-3 text-base pr-10 focus:border-primary rounded-md"
+                        className="py-3 pl-10 pr-12 text-base rounded-md peer focus:border-primary"
                         aria-label="Password"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={showPassword ? "Hide password" : "Show password"}
                       >
@@ -167,20 +174,21 @@ export function LoginForm() {
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 text-base rounded-md shadow-sm hover:shadow-md transition-all duration-150 ease-out group"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 text-lg rounded-md shadow-md hover:shadow-lg transition-all duration-200 ease-out group hover:scale-[1.02]"
               disabled={isLoading}
-              aria-label="Login button"
+              aria-label="Sign In button"
             >
               {isLoading ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
               ) : (
                 "Sign In"
               )}
+              {!isLoading && <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />}
             </Button>
           </form>
         </Form>
         <div className="mt-8 text-center">
-          <Link href="#" className="text-sm text-primary/90 hover:text-primary hover:underline font-medium">
+          <Link href="#" className="text-sm text-muted-foreground hover:text-primary hover:underline font-medium transition-colors">
             Forgot Password?
           </Link>
         </div>

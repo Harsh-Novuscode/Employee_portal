@@ -1,6 +1,6 @@
 
 import { LoginForm } from "@/components/auth/login-form";
-import { Network } from "lucide-react"; // Changed icon to Network
+import { Network } from "lucide-react";
 
 export default function LoginPage() {
   return (

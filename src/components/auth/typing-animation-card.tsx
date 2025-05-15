@@ -17,10 +17,10 @@ export function TypingAnimationCard({ isTyping }: TypingAnimationCardProps) {
       <div className="relative w-full aspect-[3/4] max-w-[300px] mb-6 rounded-sm overflow-hidden shadow-lg border border-primary/20">
         <Image
           src="https://placehold.co/384x512.png"
-          alt="Abstract AI Neural Network Visualization"
+          alt="AI Support Team with Robot and Human Operators"
           layout="fill"
           objectFit="cover"
-          data-ai-hint="neural network abstract"
+          data-ai-hint="AI support team"
           className={cn(
             "transition-all duration-500 filter grayscale-[50%] hover:grayscale-0",
             isTyping ? "opacity-70 blur-[2px] grayscale-0" : "opacity-90"
@@ -28,6 +28,7 @@ export function TypingAnimationCard({ isTyping }: TypingAnimationCardProps) {
         />
          {isTyping && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+            {/* Using Bot icon as a generic AI/activity indicator during typing */}
             <Bot className="h-16 w-16 text-primary animate-ping opacity-70" />
           </div>
         )}

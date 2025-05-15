@@ -32,6 +32,15 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
+  const [clientUserAgent, setClientUserAgent] = React.useState("");
+
+  React.useEffect(() => {
+    // Ensure this only runs on the client after hydration
+    if (typeof window !== "undefined") {
+      setClientUserAgent(navigator.userAgent);
+    }
+  }, []);
+
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -48,7 +57,7 @@ export function LoginForm() {
         username: data.username,
         ipAddress: "127.0.0.1", // Placeholder, in a real app, get this server-side
         loginTimestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
+        userAgent: clientUserAgent, // Use state variable to avoid hydration mismatch
         loginFailuresInLastHour: 0, // Placeholder, in a real app, this would be tracked
       };
 
@@ -82,10 +91,10 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-xl rounded-lg">
+    <Card className="w-full max-w-md shadow-2xl rounded-lg border border-border/30">
       <CardHeader className="text-center pt-8 pb-4">
-        <CardTitle className="text-4xl font-extrabold tracking-tight text-primary">AccessHub</CardTitle>
-        <CardDescription className="pt-1">Sign in to your company portal</CardDescription>
+        <CardTitle className="text-5xl font-bold tracking-tight text-primary">AccessHub</CardTitle>
+        <CardDescription className="pt-2 text-base">Sign in to your company portal</CardDescription>
       </CardHeader>
       <CardContent className="px-8 pb-8">
         <Form {...form}>
@@ -99,10 +108,10 @@ export function LoginForm() {
                   <FormControl>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                      <Input 
-                        placeholder="your.email@company.com" 
-                        {...field} 
-                        className="pl-10 transition-shadow duration-200 ease-in-out focus:shadow-md"
+                      <Input
+                        placeholder="your.email@company.com"
+                        {...field}
+                        className="pl-10 transition-shadow duration-200 ease-in-out focus:shadow-md focus:border-primary"
                         aria-label="Username or Email"
                       />
                     </div>
@@ -124,7 +133,7 @@ export function LoginForm() {
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         {...field}
-                        className="pl-10 pr-10 transition-shadow duration-200 ease-in-out focus:shadow-md"
+                        className="pl-10 pr-10 transition-shadow duration-200 ease-in-out focus:shadow-md focus:border-primary"
                         aria-label="Password"
                       />
                       <Button
@@ -147,22 +156,22 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button 
-              type="submit" 
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 text-lg" 
+            <Button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 text-lg rounded-md"
               disabled={isLoading}
               aria-label="Login"
             >
               {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               ) : (
                 "Login"
               )}
             </Button>
           </form>
         </Form>
-        <div className="mt-6 text-center">
-          <Link href="#" className="text-sm text-primary hover:underline">
+        <div className="mt-8 text-center">
+          <Link href="#" className="text-sm text-primary/80 hover:text-primary hover:underline">
             Forgot Password?
           </Link>
         </div>

@@ -5,8 +5,9 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, Cpu, Shield, Loader2, ArrowRight, Wand2 } from "lucide-react"; // Changed Icons
+import { Eye, EyeOff, Cpu, Shield, Loader2, ArrowRight, Wand2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // Added for navigation
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +40,7 @@ const MAX_PASSWORD_SEGMENTS = 12;
 export function LoginForm({ setIsTyping }: LoginFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
+  const router = useRouter(); // Initialized router
   const [clientUserAgent, setClientUserAgent] = React.useState("");
   const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const [showPassword, setShowPassword] = React.useState(false);
@@ -88,12 +90,13 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
     try {
       const securityInput: EnhanceSecurityInput = {
         username: data.username,
-        ipAddress: "::1", // Placeholder, replace with actual IP if available
+        ipAddress: "127.0.0.1", // Placeholder, replace with actual IP if available
         loginTimestamp: new Date().toISOString(),
         userAgent: clientUserAgent,
         loginFailuresInLastHour: 0, // Placeholder, implement actual tracking if needed
       };
 
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
       const securityResult = await enhanceSecurity(securityInput);
 
@@ -116,9 +119,10 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
             </div>
           ),
           description: "Welcome to the AI System Interface. Access protocols initiated.",
-          duration: 5000,
+          duration: 3000, // Reduced duration for quicker redirect feel
         });
-        // form.reset();
+        form.reset(); // Reset form fields
+        router.push('/dashboard'); // Redirect to dashboard
       }
     } catch (error) {
       console.error("Auth error:", error);
@@ -200,7 +204,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                       onClick={toggleShowPassword}
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showPassword ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                     </Button>
                   </div>
                   {!showPassword && (

@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AccessHub - Company Portal',
-  description: 'Login to AccessHub Company Portal',
+  title: 'AccessHub - AI Company Portal', // Updated title
+  description: 'Login or access the dashboard of AccessHub AI Company Portal',
 };
 
 export default function RootLayout({
@@ -25,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}>
         {children}
         <Toaster />
       </body>

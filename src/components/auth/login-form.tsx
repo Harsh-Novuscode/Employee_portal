@@ -82,12 +82,12 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-xl">
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold text-primary">AccessHub</CardTitle>
-        <CardDescription>Sign in to your company portal</CardDescription>
+    <Card className="w-full max-w-md shadow-xl rounded-lg">
+      <CardHeader className="text-center pt-8 pb-4">
+        <CardTitle className="text-4xl font-extrabold tracking-tight text-primary">AccessHub</CardTitle>
+        <CardDescription className="pt-1">Sign in to your company portal</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-8 pb-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -149,7 +149,7 @@ export function LoginForm() {
             />
             <Button 
               type="submit" 
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3" 
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-3 text-lg" 
               disabled={isLoading}
               aria-label="Login"
             >

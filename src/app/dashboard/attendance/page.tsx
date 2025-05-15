@@ -302,9 +302,23 @@ export default function AttendancePage() {
       .map(r => ({ attendanceDate: r.attendanceDate }))
       .sort((a,b) => parse(a.attendanceDate, "PPP", new Date()).getDate() - parse(b.attendanceDate, "PPP", new Date()).getDate());
 
-    setUserStatusDetailTitle(`${userEmail} - ${status} (${monthReport.month})`);
+    setUserStatusDetailTitle(`${userEmail} - ${statusKeyToLabel(status)} (${monthReport.month})`);
     setUserStatusDetailDates(dates);
     setIsUserStatusDetailOpen(true);
+  };
+
+  const statusKeyToLabel = (statusKey: string) => {
+    return statusKey.charAt(0).toUpperCase() + statusKey.slice(1).replace(/([A-Z])/g, ' $1');
+  }
+
+  const getStatusIcon = (statusKey: MockAttendanceRecord['status']) => {
+    switch(statusKey) {
+      case "Present": return <UserCheck className="mr-1.5 h-3.5 w-3.5 text-green-500" />;
+      case "Absent": return <UserX className="mr-1.5 h-3.5 w-3.5 text-red-500" />;
+      case "On Leave": return <PlaneTakeoff className="mr-1.5 h-3.5 w-3.5 text-yellow-500" />;
+      case "Half Day": return <Users className="mr-1.5 h-3.5 w-3.5 text-blue-500" />;
+      default: return null;
+    }
   };
 
 
@@ -576,7 +590,7 @@ export default function AttendancePage() {
                                     <div key={monthReport.monthKey} className="p-3 rounded-md bg-input/30 border border-border/40">
                                         <Button 
                                             variant="link" 
-                                            className="text-lg font-semibold text-accent mb-3 p-0 h-auto hover:underline"
+                                            className="text-xl font-bold text-accent mb-3 p-0 h-auto hover:underline"
                                             onClick={() => aggMonthData && handleMonthTitleClick(aggMonthData)}
                                             disabled={!aggMonthData}
                                         >
@@ -585,7 +599,7 @@ export default function AttendancePage() {
                                         {monthReport.users.length > 0 ? (
                                             <div className="space-y-3">
                                                 {monthReport.users.map(userItem => (
-                                                    <div key={userItem.email} className="p-2.5 rounded bg-card/50 border border-border/20">
+                                                    <div key={userItem.email} className="p-2.5 rounded bg-card/50 border border-border/20 hover:bg-card/70 hover:shadow-sm transition-all">
                                                         <p className="text-sm font-medium text-primary/90 mb-1.5">{userItem.email}</p>
                                                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                                                             {(Object.keys(userItem.counts) as Array<keyof UserAttendanceCounts>).map(statusKey => (
@@ -597,7 +611,10 @@ export default function AttendancePage() {
                                                                     className="w-full justify-between p-1 h-auto text-foreground hover:bg-input/70"
                                                                     onClick={() => handleUserStatusCountClick(monthReport, userItem.email, statusKey as MockAttendanceRecord['status'])}
                                                                 >
-                                                                    <span>{statusKey.charAt(0).toUpperCase() + statusKey.slice(1).replace(/([A-Z])/g, ' $1')}:</span> 
+                                                                    <div className="flex items-center">
+                                                                        {getStatusIcon(statusKey as MockAttendanceRecord['status'])}
+                                                                        <span className="ml-1">{statusKeyToLabel(statusKey)}:</span>
+                                                                    </div>
                                                                     <span className="font-medium">{userItem.counts[statusKey]}</span>
                                                                 </Button>
                                                                 )
@@ -674,3 +691,4 @@ export default function AttendancePage() {
     </MainLayout>
   );
 }
+

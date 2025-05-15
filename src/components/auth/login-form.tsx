@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, KeyRound, User, Loader2, ArrowRight, ShieldAlert } from "lucide-react";
+import { Eye, EyeOff, KeyRound, User, Loader2, ArrowRight, ShieldAlert, Laugh, Wand2 } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";

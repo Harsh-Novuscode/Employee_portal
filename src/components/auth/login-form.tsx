@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Cpu, Shield, Loader2, ArrowRight, Wand2, Bot } from "lucide-react"; // Changed Icons
+import { Eye, EyeOff, Cpu, Shield, Loader2, ArrowRight, Wand2 } from "lucide-react"; // Changed Icons
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ type LoginFormValues = z.infer<typeof formSchema>;
 interface LoginFormProps {
   setIsTyping: (isTyping: boolean) => void;
 }
+
+const MAX_PASSWORD_SEGMENTS = 12;
 
 export function LoginForm({ setIsTyping }: LoginFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -196,15 +198,21 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                       size="icon"
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-primary"
                       onClick={toggleShowPassword}
-                      aria-label="Toggle password visibility"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      <Bot className="h-5 w-5" />
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </Button>
                   </div>
-                  {!showPassword && field.value && field.value.length > 0 && (
-                    <div className="flex space-x-1 mt-2 h-6 items-center" aria-hidden="true">
-                      {Array.from({ length: field.value.length }).map((_, index) => (
-                        <Bot key={index} className="h-4 w-4 text-primary animate-pulse" />
+                  {!showPassword && (
+                    <div className="flex space-x-1 mt-2 h-3 items-center" aria-hidden="true">
+                      {Array.from({ length: MAX_PASSWORD_SEGMENTS }).map((_, index) => (
+                        <div
+                          key={index}
+                          className={cn(
+                            "h-2 flex-1 rounded-sm transition-all duration-150 ease-in-out",
+                            field.value && field.value.length > index ? "bg-primary animate-pulse" : "bg-muted/30"
+                          )}
+                        />
                       ))}
                     </div>
                   )}

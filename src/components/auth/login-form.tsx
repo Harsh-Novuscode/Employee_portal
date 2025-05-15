@@ -30,16 +30,27 @@ const formSchema = z.object({
 
 type LoginFormValues = z.infer<typeof formSchema>;
 
-export function LoginForm() {
+interface LoginFormProps {
+  setIsTyping: (isTyping: boolean) => void;
+}
+
+export function LoginForm({ setIsTyping }: LoginFormProps) {
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
   const [clientUserAgent, setClientUserAgent] = React.useState("");
+  const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       setClientUserAgent(navigator.userAgent);
     }
+    // Cleanup timeout on component unmount
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
   }, []);
 
   const form = useForm<LoginFormValues>({
@@ -50,20 +61,31 @@ export function LoginForm() {
     },
   });
 
+  const handleKeyDown = () => {
+    setIsTyping(true);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+    }, 1500); // Adjust delay as needed
+  };
+
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
+    setIsTyping(false); // Stop typing animation on submit
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
     try {
       const securityInput: EnhanceSecurityInput = {
         username: data.username,
-        ipAddress: "127.0.0.1", // Placeholder, replace with actual IP in a real app
+        ipAddress: "127.0.0.1", 
         loginTimestamp: new Date().toISOString(),
         userAgent: clientUserAgent,
-        loginFailuresInLastHour: 0, // Placeholder, integrate with actual tracking
+        loginFailuresInLastHour: 0, 
       };
 
-      // Simulate network delay and AI processing
       await new Promise(resolve => setTimeout(resolve, 1000));
-
       const securityResult = await enhanceSecurity(securityInput);
 
       if (securityResult.isSuspicious) {
@@ -79,13 +101,14 @@ export function LoginForm() {
         });
       } else {
         toast({
-          title: "Access Granted!",
+          title: (
+            <div className="flex items-center gap-2">
+               <Wand2 className="h-5 w-5 text-green-500" /> Access Granted!
+            </div>
+          ),
           description: "Welcome to the AccessHub portal.",
           duration: 5000,
         });
-        // Consider navigation or form reset here
-        // router.push('/dashboard');
-        // form.reset();
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -101,7 +124,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-xl rounded-lg border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1 animate-fade-in-slide-up">
+    <Card className="w-full h-full flex flex-col justify-center shadow-xl rounded-lg border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1">
       <CardHeader className="text-center pt-10 pb-6">
         <CardTitle className="text-4xl font-bold tracking-tight text-foreground">
           AccessHub Portal
@@ -125,6 +148,7 @@ export function LoginForm() {
                       <Input
                         placeholder="your.username@company.com"
                         {...field}
+                        onKeyDown={handleKeyDown}
                         className="py-3 pl-10 text-base rounded-md peer focus:border-primary transition-colors duration-300"
                         aria-label="Username or Email"
                       />
@@ -148,6 +172,7 @@ export function LoginForm() {
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         {...field}
+                        onKeyDown={handleKeyDown}
                         className="py-3 pl-10 pr-12 text-base rounded-md peer focus:border-primary transition-colors duration-300"
                         aria-label="Password"
                       />

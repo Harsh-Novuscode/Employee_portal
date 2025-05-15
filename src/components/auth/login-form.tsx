@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Cpu, Shield, Loader2, ArrowRight, Wand2 } from "lucide-react";
+import { Cpu, Shield, Loader2, ArrowRight, Wand2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
   const [clientUserAgent, setClientUserAgent] = React.useState("");
   const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const [passwordProgress, setPasswordProgress] = React.useState(0);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -62,7 +63,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
     },
   });
 
-  const handleKeyDown = () => {
+  const handleTyping = () => {
     setIsTyping(true);
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
@@ -76,8 +77,10 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
     const value = e.target.value;
     fieldChange(value);
     setPasswordProgress(value.length);
-    handleKeyDown(); // Also trigger typing animation for password
+    handleTyping();
   };
+
+  const toggleShowPassword = () => setShowPassword(!showPassword);
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
@@ -87,13 +90,14 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
     try {
       const securityInput: EnhanceSecurityInput = {
         username: data.username,
-        ipAddress: "::1",
+        ipAddress: "::1", // Placeholder, replace with actual IP if available
         loginTimestamp: new Date().toISOString(),
         userAgent: clientUserAgent,
-        loginFailuresInLastHour: 0,
+        loginFailuresInLastHour: 0, // Placeholder, implement actual tracking if needed
       };
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API call & AI processing
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
       const securityResult = await enhanceSecurity(securityInput);
 
       if (securityResult.isSuspicious) {
@@ -114,9 +118,11 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                <Wand2 className="h-5 w-5 text-primary" /> Connection Established!
             </div>
           ),
-          description: "Welcome to the AI System Interface.",
+          description: "Welcome to the AI System Interface. Access protocols initiated.",
           duration: 5000,
         });
+        // Here you would typically redirect the user or update app state
+        // For demo: form.reset(); setPasswordProgress(0);
       }
     } catch (error) {
       console.error("Auth error:", error);
@@ -156,7 +162,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                       <Input
                         placeholder="node.identifier@network.ai"
                         {...field}
-                        onKeyDown={handleKeyDown}
+                        onKeyDown={handleTyping}
                         className="py-3 pl-10 text-base rounded-sm peer focus:border-primary/70 transition-colors duration-300 bg-input focus:bg-input/70 focus:ring-1 focus:ring-primary/70"
                         aria-label="System ID or Username"
                       />
@@ -177,28 +183,43 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                     <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
                     <FormControl>
                       <Input
-                        type="password"
-                        placeholder="Enter sequence..." // Placeholder isn't really visible due to transparent text
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter sequence..."
                         {...field}
                         onChange={(e) => handlePasswordChange(e, field.onChange)}
-                        onKeyDown={handleKeyDown} // Re-add handleKeyDown if you want typing animation for password too
-                        className="py-3 pl-10 pr-4 text-base rounded-sm peer focus:border-primary/70 transition-colors duration-300 bg-input focus:bg-input/70 focus:ring-1 focus:ring-primary/70 text-transparent caret-primary select-none"
+                        onKeyDown={handleTyping}
+                        className={cn(
+                          "py-3 pl-10 pr-10 text-base rounded-sm peer focus:border-primary/70 transition-colors duration-300 bg-input focus:bg-input/70 focus:ring-1 focus:ring-primary/70",
+                          !showPassword && "text-transparent caret-primary select-none"
+                        )}
                         aria-label="Authentication Key"
                         autoComplete="new-password"
                       />
                     </FormControl>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={toggleShowPassword}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </Button>
                   </div>
-                  <div className="flex space-x-1.5 mt-2 pl-1 h-6 items-center" aria-hidden="true">
-                    {Array.from({ length: MAX_PASSWORD_SEGMENTS }).map((_, index) => (
-                      <span
-                        key={index}
-                        className={cn(
-                          "h-3 w-full flex-1 rounded-sm transition-all duration-150 ease-in-out",
-                          index < passwordProgress ? "bg-primary shadow-[0_0_8px_hsl(var(--primary))]" : "bg-muted/30"
-                        )}
-                      />
-                    ))}
-                  </div>
+                  {!showPassword && (
+                    <div className="flex space-x-1.5 mt-2 pl-1 h-6 items-center" aria-hidden="true">
+                      {Array.from({ length: MAX_PASSWORD_SEGMENTS }).map((_, index) => (
+                        <span
+                          key={index}
+                          className={cn(
+                            "h-3 w-full flex-1 rounded-sm transition-all duration-150 ease-in-out",
+                            index < passwordProgress ? "bg-primary shadow-[0_0_8px_hsl(var(--primary))]" : "bg-muted/30"
+                          )}
+                        />
+                      ))}
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -223,8 +244,12 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
           <Link
             href="#"
             className="text-sm text-muted-foreground hover:text-accent hover:underline font-medium transition-all duration-300 transform hover:scale-105 inline-block hover:drop-shadow-[0_0_5px_hsl(var(--accent))]"
+            onClick={(e) => {
+              e.preventDefault();
+              toast({ title: "System Protocol", description: "Auth Key recovery sequence initiated. Check secure channel." });
+            }}
           >
-            Auth Key Recovery?
+            Auth Key Recovery Protocol
           </Link>
         </div>
       </CardContent>

@@ -2,9 +2,8 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Bot } from "lucide-react";
+import { Loader2, Cpu } from "lucide-react"; // Changed from Bot
 import { cn } from "@/lib/utils";
 
 interface TypingAnimationCardProps {
@@ -14,24 +13,15 @@ interface TypingAnimationCardProps {
 export function TypingAnimationCard({ isTyping }: TypingAnimationCardProps) {
   return (
     <Card className="w-full h-full flex flex-col items-center justify-center shadow-xl rounded-md border border-border/60 bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:border-accent/70 hover:-translate-y-1 hover:animate-subtle-glow animate-subtle-glow">
-      <div className="relative w-full aspect-[3/4] max-w-[300px] mb-6 rounded-sm overflow-hidden shadow-lg border border-primary/20">
-        <Image
-          src="https://placehold.co/384x512.png"
-          alt="AI Support Team with Robot and Human Operators"
-          layout="fill"
-          objectFit="cover"
-          data-ai-hint="AI support team"
+      <div className="relative w-full flex items-center justify-center h-48 mb-6">
+        {/* Replaced Image with Cpu icon */}
+        <Cpu
           className={cn(
-            "transition-all duration-500 filter grayscale-[50%] hover:grayscale-0",
-            isTyping ? "opacity-70 blur-[2px] grayscale-0" : "opacity-90"
+            "h-32 w-32 text-primary animate-gentle-pulse transition-all duration-500",
+            isTyping ? "opacity-70" : "opacity-90"
           )}
+          data-ai-hint="processor core"
         />
-         {isTyping && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
-            {/* Using Bot icon as a generic AI/activity indicator during typing */}
-            <Bot className="h-16 w-16 text-primary animate-ping opacity-70" />
-          </div>
-        )}
       </div>
       <div className="text-center h-10 flex items-center justify-center">
         {isTyping ? (

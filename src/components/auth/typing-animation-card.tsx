@@ -4,7 +4,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Bot } from "lucide-react"; 
+import { Loader2, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TypingAnimationCardProps {
@@ -13,14 +13,14 @@ interface TypingAnimationCardProps {
 
 export function TypingAnimationCard({ isTyping }: TypingAnimationCardProps) {
   return (
-    <Card className="w-full h-full flex flex-col items-center justify-center shadow-xl rounded-md border border-border/60 bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:border-accent/70 hover:-translate-y-1 hover:animate-subtle-glow">
+    <Card className="w-full h-full flex flex-col items-center justify-center shadow-xl rounded-md border border-border/60 bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:border-accent/70 hover:-translate-y-1 hover:animate-subtle-glow animate-subtle-glow">
       <div className="relative w-full aspect-[3/4] max-w-[300px] mb-6 rounded-sm overflow-hidden shadow-lg border border-primary/20">
         <Image
           src="https://placehold.co/384x512.png"
-          alt="AI Core Visualization"
+          alt="Abstract AI Neural Network Visualization"
           layout="fill"
           objectFit="cover"
-          data-ai-hint="futuristic hologram"
+          data-ai-hint="neural network abstract"
           className={cn(
             "transition-all duration-500 filter grayscale-[50%] hover:grayscale-0",
             isTyping ? "opacity-70 blur-[2px] grayscale-0" : "opacity-90"

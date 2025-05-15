@@ -16,13 +16,13 @@ body {
     --card-foreground: 220 15% 25%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 25%;
-    --primary: 220 90% 60%; /* Slightly brighter, more vibrant blue */
+    --primary: 220 90% 62%; /* Slightly brighter, more vibrant blue */
     --primary-foreground: 0 0% 100%; /* White */
     --secondary: 215 30% 90%; /* Lighter Blue-Gray */
     --secondary-foreground: 215 20% 30%;
     --muted: 220 20% 92%; /* Subtle Gray */
     --muted-foreground: 220 10% 45%;
-    --accent: 180 75% 45%; /* A slightly deeper, richer teal/cyan */
+    --accent: 180 80% 48%; /* A slightly deeper, richer teal/cyan */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
@@ -92,5 +92,29 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  @keyframes gentle-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+  }
+  .animate-gentle-pulse {
+    animation: gentle-pulse 2.5s infinite ease-in-out;
+  }
+
+  @keyframes fade-in-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-slide-up {
+    animation: fade-in-slide-up 0.7s ease-out forwards;
   }
 }

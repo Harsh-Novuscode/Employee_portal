@@ -101,7 +101,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-xl rounded-lg border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1">
+    <Card className="w-full max-w-md shadow-xl rounded-lg border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1 animate-fade-in-slide-up">
       <CardHeader className="text-center pt-10 pb-6">
         <CardTitle className="text-4xl font-bold tracking-tight text-foreground">
           AccessHub Portal

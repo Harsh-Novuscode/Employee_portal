@@ -4,7 +4,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, MessageSquareText } from "lucide-react";
+import { Loader2, Bot } from "lucide-react"; // Changed to Bot icon
 import { cn } from "@/lib/utils";
 
 interface TypingAnimationCardProps {
@@ -13,22 +13,22 @@ interface TypingAnimationCardProps {
 
 export function TypingAnimationCard({ isTyping }: TypingAnimationCardProps) {
   return (
-    <Card className="w-full h-full flex flex-col items-center justify-center shadow-xl rounded-lg border border-border/60 bg-card p-6">
-      <div className="relative w-full aspect-[3/4] max-w-[300px] mb-6 rounded-lg overflow-hidden shadow-lg">
+    <Card className="w-full h-full flex flex-col items-center justify-center shadow-xl rounded-md border border-border/60 bg-card p-6 hover:border-accent/50 transition-colors">
+      <div className="relative w-full aspect-[3/4] max-w-[300px] mb-6 rounded-sm overflow-hidden shadow-lg border border-primary/20">
         <Image
           src="https://placehold.co/384x512.png"
-          alt="Analyst working on a laptop"
+          alt="AI Core Visualization"
           layout="fill"
           objectFit="cover"
-          data-ai-hint="professional coding"
+          data-ai-hint="futuristic hologram" // Updated AI Hint
           className={cn(
-            "transition-opacity duration-500",
-            isTyping ? "opacity-80" : "opacity-100"
+            "transition-opacity duration-500 filter grayscale-[50%_] hover:grayscale-0",
+            isTyping ? "opacity-70 blur-[2px]" : "opacity-90"
           )}
         />
          {isTyping && (
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-            <MessageSquareText className="h-16 w-16 text-white/80 animate-ping" />
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+            <Bot className="h-16 w-16 text-primary animate-ping opacity-70" /> {/* Changed Icon */}
           </div>
         )}
       </div>
@@ -36,14 +36,14 @@ export function TypingAnimationCard({ isTyping }: TypingAnimationCardProps) {
         {isTyping ? (
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span>Analyst is typing...</span>
+            <span>AI Core processing...</span> {/* Updated Text */}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Awaiting your credentials...</p>
+          <p className="text-sm text-muted-foreground">Awaiting System Input...</p> // Updated Text
         )}
       </div>
        <p className="mt-4 text-xs text-center text-muted-foreground/70 px-4">
-        This interactive element showcases our system's responsiveness. As you type, our &quot;digital analyst&quot; mirrors the activity.
+        Interface synchronization active. The AI companion mirrors user input rhythm. {/* Updated Text */}
       </p>
     </Card>
   );

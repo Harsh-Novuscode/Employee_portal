@@ -9,80 +9,80 @@ body {
 
 @layer base {
   :root {
-    /* Playful & Artistic Theme */
-    --background: 45 80% 95%; /* Light Yellowish Cream */
-    --foreground: 250 30% 25%; /* Deep Indigo */
+    /* Tech Corporate Theme */
+    --background: 220 20% 96%; /* Light Gray */
+    --foreground: 220 15% 25%; /* Dark Blue-Gray */
     --card: 0 0% 100%; /* White */
-    --card-foreground: 250 30% 25%;
+    --card-foreground: 220 15% 25%;
     --popover: 0 0% 100%;
-    --popover-foreground: 250 30% 25%;
-    --primary: 330 85% 60%; /* Vibrant Pink */
+    --popover-foreground: 220 15% 25%;
+    --primary: 210 85% 55%; /* Strong, Modern Blue */
     --primary-foreground: 0 0% 100%; /* White */
-    --secondary: 190 70% 85%; /* Light Teal */
-    --secondary-foreground: 190 30% 25%;
-    --muted: 250 30% 94%;
-    --muted-foreground: 250 20% 55%; /* Muted Indigo text */
-    --accent: 50 100% 60%; /* Bright Yellow */
-    --accent-foreground: 250 30% 15%; /* Darker color for contrast on yellow */
-    --destructive: 0 75% 55%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 330 60% 80%; /* Light Pink border */
-    --input: 250 30% 90%; /* Input border */
-    --ring: 330 85% 65%; /* Pink for focus rings */
-    --radius: 1.5rem; /* More rounded, playful */
-
-    --chart-1: 330 80% 70%; /* Pink shades */
-    --chart-2: 50 95% 65%;  /* Yellow shades */
-    --chart-3: 190 60% 60%; /* Teal shades */
-    --chart-4: 25 80% 60%;  /* Orange/complementary */
-    --chart-5: 270 50% 55%; /* Purple/complementary */
-
-    --sidebar-background: 250 25% 96%;
-    --sidebar-foreground: 250 10% 25%;
-    --sidebar-primary: 330 85% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 250 20% 92%;
-    --sidebar-accent-foreground: 250 10% 25%;
-    --sidebar-border: 250 20% 88%;
-    --sidebar-ring: 330 85% 65%;
-  }
-  .dark {
-    /* Dark Playful & Artistic Theme */
-    --background: 250 20% 12%; /* Very Dark Indigo */
-    --foreground: 45 50% 85%; /* Light Creamy Yellow text */
-    --card: 250 20% 18%; /* Slightly lighter dark indigo */
-    --card-foreground: 45 50% 85%;
-    --popover: 250 20% 18%;
-    --popover-foreground: 45 50% 85%;
-    --primary: 330 90% 70%; /* Brighter Pink for dark mode */
-    --primary-foreground: 250 10% 10%;
-    --secondary: 190 60% 40%; /* Darker Teal */
-    --secondary-foreground: 190 50% 85%;
-    --muted: 250 15% 30%;
-    --muted-foreground: 250 15% 65%;
-    --accent: 50 100% 65%; /* Brighter Yellow for dark mode */
-    --accent-foreground: 250 30% 10%;
+    --secondary: 215 30% 90%; /* Lighter Blue-Gray */
+    --secondary-foreground: 215 20% 30%;
+    --muted: 220 20% 92%; /* Subtle Gray */
+    --muted-foreground: 220 10% 45%;
+    --accent: 160 70% 50%; /* Tech Teal/Green Accent */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 330 50% 40%; /* Darker Pink border for dark mode */
-    --input: 250 15% 35%;
-    --ring: 330 90% 75%;
-    --radius: 1.5rem;
+    --border: 220 20% 88%; /* Light Gray Border */
+    --input: 220 20% 90%;
+    --ring: 210 85% 60%; /* Blue for focus rings */
+    --radius: 0.5rem; /* Standard, slightly rounded */
 
-    --chart-1: 330 80% 75%;
-    --chart-2: 50 95% 70%;
-    --chart-3: 190 60% 65%;
-    --chart-4: 25 80% 65%;
-    --chart-5: 270 50% 60%;
+    --chart-1: 210 80% 60%;
+    --chart-2: 160 65% 55%;
+    --chart-3: 200 70% 65%;
+    --chart-4: 225 50% 50%;
+    --chart-5: 240 40% 55%;
 
-    --sidebar-background: 250 18% 15%;
-    --sidebar-foreground: 45 50% 85%;
-    --sidebar-primary: 330 90% 70%;
-    --sidebar-primary-foreground: 250 10% 10%;
-    --sidebar-accent: 250 15% 25%;
-    --sidebar-accent-foreground: 45 50% 85%;
-    --sidebar-border: 250 15% 30%;
-    --sidebar-ring: 330 90% 75%;
+    --sidebar-background: 220 15% 15%; /* Darker for sidebar */
+    --sidebar-foreground: 220 10% 85%;
+    --sidebar-primary: 210 85% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 25%;
+    --sidebar-accent-foreground: 220 10% 85%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 210 85% 65%;
+  }
+  .dark {
+    /* Dark Tech Corporate Theme */
+    --background: 220 15% 12%; /* Very Dark Blue-Gray */
+    --foreground: 220 10% 88%; /* Light Gray text */
+    --card: 220 15% 18%; /* Slightly lighter dark */
+    --card-foreground: 220 10% 88%;
+    --popover: 220 15% 18%;
+    --popover-foreground: 220 10% 88%;
+    --primary: 210 90% 65%; /* Brighter Blue for dark mode */
+    --primary-foreground: 220 5% 10%;
+    --secondary: 215 20% 25%; /* Darker Gray-Blue */
+    --secondary-foreground: 215 10% 80%;
+    --muted: 220 15% 30%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 160 75% 55%; /* Brighter Teal/Green for dark mode */
+    --accent-foreground: 220 5% 10%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 15% 30%;
+    --input: 220 15% 25%;
+    --ring: 210 90% 70%;
+    --radius: 0.5rem;
+
+    --chart-1: 210 80% 70%;
+    --chart-2: 160 65% 60%;
+    --chart-3: 200 70% 70%;
+    --chart-4: 225 50% 55%;
+    --chart-5: 240 40% 60%;
+
+    --sidebar-background: 220 15% 10%;
+    --sidebar-foreground: 220 10% 88%;
+    --sidebar-primary: 210 90% 65%;
+    --sidebar-primary-foreground: 220 5% 10%;
+    --sidebar-accent: 220 15% 20%;
+    --sidebar-accent-foreground: 220 10% 88%;
+    --sidebar-border: 220 15% 25%;
+    --sidebar-ring: 210 90% 70%;
   }
 }
 

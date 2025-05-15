@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, KeyRound, User, Loader2, Laugh, Wand2, ArrowRight } from "lucide-react"; // Added Laugh, Wand2, ArrowRight
+import { Eye, EyeOff, KeyRound, User, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,8 @@ import { enhanceSecurity, EnhanceSecurityInput } from "@/ai/flows/enhance-securi
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  username: z.string().min(1, { message: "Psst! Your secret name?" }),
-  password: z.string().min(1, { message: "The magic word, please!" }),
+  username: z.string().min(1, { message: "Username is required." }),
+  password: z.string().min(1, { message: "Password is required." }),
 });
 
 type LoginFormValues = z.infer<typeof formSchema>;
@@ -35,11 +35,6 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
   const [clientUserAgent, setClientUserAgent] = React.useState("");
-
-  const [isUsernameFieldVisible, setIsUsernameFieldVisible] = React.useState(false);
-  const [isPasswordFieldVisible, setIsPasswordFieldVisible] = React.useState(false);
-  const [loginButtonText, setLoginButtonText] = React.useState("Let's Go!");
-
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -55,70 +50,42 @@ export function LoginForm() {
     },
   });
 
-  const { watch } = form;
-  const usernameValue = watch("username");
-  const passwordValue = watch("password");
-
-  React.useEffect(() => {
-    if (usernameValue && passwordValue) {
-      setLoginButtonText("Unlock the Portal!");
-    } else if (usernameValue || passwordValue) {
-      setLoginButtonText("Almost there...");
-    } else {
-      setLoginButtonText("Begin Quest!");
-    }
-  }, [usernameValue, passwordValue]);
-
-
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
       const securityInput: EnhanceSecurityInput = {
         username: data.username,
-        ipAddress: "127.0.0.1",
+        ipAddress: "127.0.0.1", // Placeholder, replace with actual IP in a real app
         loginTimestamp: new Date().toISOString(),
         userAgent: clientUserAgent,
-        loginFailuresInLastHour: 0,
+        loginFailuresInLastHour: 0, // Placeholder, integrate with actual tracking
       };
 
-      // Simulate a small delay for dramatic effect
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 750)); // Simulate network delay
 
       const securityResult = await enhanceSecurity(securityInput);
 
       if (securityResult.isSuspicious) {
         toast({
           variant: "destructive",
-          title: "Uh oh, Trouble!",
-          description: (
-            <div className="flex items-center gap-2">
-              <Laugh className="h-5 w-5 text-destructive-foreground" />
-              <span>Hmm, that's a bit fishy! {securityResult.reason || 'Try a different spell?'}</span>
-            </div>
-          ),
+          title: "Login Attempt Blocked",
+          description: securityResult.reason || "Suspicious activity detected. Please contact support.",
           duration: 5000,
         });
       } else {
         toast({
-          title: "Woohoo! You're In!",
-          description: (
-             <div className="flex items-center gap-2">
-              <Wand2 className="h-5 w-5 text-primary-foreground" />
-              <span>The portal welcomes you, Master Hacker!</span>
-            </div>
-          ),
+          title: "Login Successful",
+          description: "Welcome to the portal!",
           duration: 5000,
         });
-        // form.reset(); // Optionally reset form
-        // setIsUsernameFieldVisible(false); // Hide fields again
-        // setIsPasswordFieldVisible(false);
+        // form.reset(); // Consider if form reset is desired after successful login
       }
     } catch (error) {
-      console.error("Login spell misfired:", error);
+      console.error("Login error:", error);
       toast({
         variant: "destructive",
-        title: "Fizzle! Pop!",
-        description: "The login magic sputtered. Try again?",
+        title: "Login Failed",
+        description: "An unexpected error occurred. Please try again.",
         duration: 5000,
       });
     } finally {
@@ -126,131 +93,95 @@ export function LoginForm() {
     }
   };
 
-  const inputPlaceholderClasses = "cursor-pointer hover:bg-secondary/30 transition-all duration-300 p-6 rounded-lg border-2 border-dashed border-primary/50 flex flex-col items-center justify-center space-y-2 text-muted-foreground hover:text-primary hover:border-primary";
-
   return (
-    <Card className="w-full max-w-md shadow-xl rounded-3xl border-2 border-primary/30 bg-card/80 backdrop-blur-sm transform hover:scale-105 transition-transform duration-300 ease-out -rotate-1 hover:rotate-0">
-      <CardHeader className="text-center pt-10 pb-6">
-        <CardTitle className="text-5xl font-bold tracking-tight text-primary drop-shadow-md" style={{ fontFamily: "'Comic Sans MS', cursive, sans-serif" }}>
-          Access<span className="text-accent">Quest</span>
+    <Card className="w-full max-w-md shadow-lg rounded-lg border border-border/50 bg-card">
+      <CardHeader className="text-center pt-8 pb-6">
+        <CardTitle className="text-3xl font-semibold tracking-tight text-foreground">
+          AccessHub Portal
         </CardTitle>
-        <CardDescription className="pt-3 text-lg text-foreground/80">
-          Only the worthy may enter... (or those with passwords)
+        <CardDescription className="pt-2 text-md text-muted-foreground">
+          Sign in to your account
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-8 pb-10">
+      <CardContent className="px-7 pb-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {!isUsernameFieldVisible ? (
-              <div
-                className={inputPlaceholderClasses}
-                onClick={() => setIsUsernameFieldVisible(true)}
-                role="button"
-                tabIndex={0}
-                aria-label="Reveal username field"
-              >
-                <User className="h-10 w-10 text-primary/70" />
-                <span className="font-semibold text-lg">Who Goes There?</span>
-                <span className="text-sm">(Click to reveal your name)</span>
-              </div>
-            ) : (
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-semibold text-primary flex items-center gap-2">
-                      <User className="h-5 w-5" /> Your Alias
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          placeholder="e.g., ShadowWalker_27"
-                          {...field}
-                          className="pl-4 pr-4 py-6 text-lg transition-shadow duration-200 ease-in-out focus:shadow-accent/50 focus:shadow-lg focus:border-accent rounded-xl"
-                          aria-label="Username or Email"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" /> Username
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="your.username"
+                      {...field}
+                      className="py-3 text-base focus:border-primary rounded-md"
+                      aria-label="Username or Email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            {!isPasswordFieldVisible ? (
-              <div
-                className={cn(inputPlaceholderClasses, !isUsernameFieldVisible && "opacity-50 cursor-not-allowed")}
-                onClick={() => isUsernameFieldVisible && setIsPasswordFieldVisible(true)}
-                role="button"
-                tabIndex={isUsernameFieldVisible ? 0 : -1}
-                aria-label="Reveal password field"
-                aria-disabled={!isUsernameFieldVisible}
-              >
-                <KeyRound className="h-10 w-10 text-primary/70" />
-                 <span className="font-semibold text-lg">Secret Word?</span>
-                <span className="text-sm">(Click if you dare...)</span>
-              </div>
-            ) : (
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-semibold text-primary flex items-center gap-2">
-                      <KeyRound className="h-5 w-5" /> Magic Phrase
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••••••"
-                          {...field}
-                          className="pl-4 pr-12 py-6 text-lg transition-shadow duration-200 ease-in-out focus:shadow-accent/50 focus:shadow-lg focus:border-accent rounded-xl"
-                          aria-label="Password"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 text-primary/80 hover:text-primary"
-                          onClick={() => setShowPassword(!showPassword)}
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-6 w-6" />
-                          ) : (
-                            <Eye className="h-6 w-6" />
-                          )}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <KeyRound className="h-4 w-4 text-muted-foreground" /> Password
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        {...field}
+                        className="py-3 text-base pr-10 focus:border-primary rounded-md"
+                        aria-label="Password"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 text-xl rounded-xl shadow-lg hover:shadow-primary/40 transform hover:scale-105 transition-all duration-200 ease-out group"
-              disabled={isLoading || !isUsernameFieldVisible || !isPasswordFieldVisible}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 text-base rounded-md shadow-sm hover:shadow-md transition-all duration-150 ease-out group"
+              disabled={isLoading}
               aria-label="Login button"
             >
               {isLoading ? (
-                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               ) : (
-                <>
-                  {loginButtonText}
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                </>
+                "Sign In"
               )}
             </Button>
           </form>
         </Form>
-        <div className="mt-10 text-center">
-          <Link href="#" className="text-sm text-primary/80 hover:text-primary hover:underline font-medium">
-            Forgot your magic spell? (Reset Password)
+        <div className="mt-8 text-center">
+          <Link href="#" className="text-sm text-primary/90 hover:text-primary hover:underline font-medium">
+            Forgot Password?
           </Link>
         </div>
       </CardContent>

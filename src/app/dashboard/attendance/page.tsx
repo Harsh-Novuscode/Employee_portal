@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/hooks/use-toast";
 
-import { UsersRound, CalendarIcon as CalendarIconLucide, ListChecks, Mail, FileText, Loader2, CheckCircle, UserCheck, UserX, PlaneTakeoff, History, Users, Maximize2, Minimize2, Eye, UserCog } from "lucide-react";
+import { UserCog, CalendarIcon as CalendarIconLucide, ListChecks, Mail, FileText, Loader2, CheckCircle, UserCheck, UserX, PlaneTakeoff, History, Users, Maximize2, Minimize2, Eye } from "lucide-react";
 
 const manualAttendanceSchema = z.object({
   employeeEmail: z.string().email({ message: "Invalid email address." }),
@@ -92,10 +92,15 @@ export default function AttendancePage() {
   
   const [isAllRecordsTableExpanded, setIsAllRecordsTableExpanded] = React.useState(false);
 
-  // State for the new user-status-day-wise dialog
   const [isUserStatusDetailOpen, setIsUserStatusDetailOpen] = React.useState(false);
   const [userStatusDetailTitle, setUserStatusDetailTitle] = React.useState("");
   const [userStatusDetailDates, setUserStatusDetailDates] = React.useState<UserStatusDateRecord[]>([]);
+  
+  const [todayString, setTodayString] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setTodayString(format(new Date(), "PPP"));
+  }, []);
 
 
   const form = useForm<ManualAttendanceFormValues>({
@@ -194,7 +199,6 @@ export default function AttendancePage() {
     return summary;
   }, [attendanceRecords]);
 
-  // For the original monthly summary dialog (all users for a month)
   const aggregatedMonthlySummary = React.useMemo<AggregatedMonthlySummary>(() => {
     const summaryByMonth: Record<string, DailySummary & { year: number, monthNum: number }> = {};
     attendanceRecords.forEach(record => {
@@ -228,7 +232,7 @@ export default function AttendancePage() {
 
     attendanceRecords.forEach(record => {
       const recordDate = parse(record.attendanceDate, "PPP", new Date());
-      const monthKey = format(startOfMonth(recordDate), "yyyy-MM"); // "2023-07"
+      const monthKey = format(startOfMonth(recordDate), "yyyy-MM"); 
       const userEmail = record.employeeEmail;
 
       if (!summaryByMonthUser[monthKey]) {
@@ -246,7 +250,7 @@ export default function AttendancePage() {
 
     return Object.entries(summaryByMonthUser)
       .map(([monthKey, usersData]) => {
-        const firstUserEntry = Object.values(usersData)[0]; // To get year and monthNum
+        const firstUserEntry = Object.values(usersData)[0]; 
         return {
           monthKey,
           month: format(new Date(firstUserEntry.year, firstUserEntry.monthNum), "MMMM yyyy"),
@@ -271,12 +275,11 @@ export default function AttendancePage() {
     const records = attendanceRecords
       .filter(r => isSameDay(parse(r.attendanceDate, "PPP", new Date()), today) && r.status === status)
       .map(r => ({ employeeEmail: r.employeeEmail, status: r.status }));
-    setDailyDetailDialogTitle(`${status} Today (${format(today, "PPP")})`);
+    setDailyDetailDialogTitle(`${status} Today (${todayString || 'Loading...'})`);
     setDailyDetailDialogRecords(records);
     setIsDailyDetailDialogOpen(true);
   };
   
-  // For clicking the month title (shows all records for all users for that month)
   const handleMonthTitleClick = (monthData: AggregatedMonthlySummaryItem) => {
     const records = attendanceRecords.filter(r => {
         const recordDate = parse(r.attendanceDate, "PPP", new Date());
@@ -287,7 +290,6 @@ export default function AttendancePage() {
     setIsMonthlyDetailDialogOpen(true);
   };
 
-  // For clicking a specific user's status count in a month
   const handleUserStatusCountClick = (monthReport: UserCentricMonthReport, userEmail: string, status: MockAttendanceRecord['status']) => {
     const targetMonth = parse(monthReport.month, "MMMM yyyy", new Date());
     const dates = attendanceRecords
@@ -316,7 +318,6 @@ export default function AttendancePage() {
           <p className="text-muted-foreground">Track and manage employee attendance records.</p>
         </header>
 
-        {/* Dialog for Daily Status Details */}
         <Dialog open={isDailyDetailDialogOpen} onOpenChange={setIsDailyDetailDialogOpen}>
           <DialogContent className="sm:max-w-[425px] bg-card border-border">
             <DialogHeader>
@@ -339,7 +340,6 @@ export default function AttendancePage() {
           </DialogContent>
         </Dialog>
 
-        {/* Dialog for All Monthly Records (when month title is clicked) */}
         <Dialog open={isMonthlyDetailDialogOpen} onOpenChange={setIsMonthlyDetailDialogOpen}>
           <DialogContent className="sm:max-w-md md:max-w-lg bg-card border-border">
             <DialogHeader>
@@ -366,7 +366,7 @@ export default function AttendancePage() {
                             record.status === "Present" ? "bg-green-500/20 text-green-400" :
                             record.status === "Absent" ? "bg-red-500/20 text-red-400" :
                             record.status === "On Leave" ? "bg-yellow-500/20 text-yellow-400" :
-                            "bg-blue-500/20 text-blue-400" // Half Day
+                            "bg-blue-500/20 text-blue-400" 
                           }`}>
                             {record.status}
                           </span>
@@ -382,7 +382,6 @@ export default function AttendancePage() {
           </DialogContent>
         </Dialog>
 
-        {/* Dialog for User's Day-wise Status in a Month */}
         <Dialog open={isUserStatusDetailOpen} onOpenChange={setIsUserStatusDetailOpen}>
             <DialogContent className="sm:max-w-sm bg-card border-border">
                 <DialogHeader>
@@ -515,7 +514,7 @@ export default function AttendancePage() {
                 </CardHeader>
                 <CardContent>
                     <CardDescription className="text-sm text-muted-foreground mb-4">
-                        Summary for today, {format(new Date(), "PPP")}. Click a status to view details.
+                        Summary for today, {todayString || 'Loading...'}. Click a status to view details.
                     </CardDescription>
                     {isLoadingRecords ? (
                         <div className="flex items-center justify-center h-24">
@@ -569,10 +568,9 @@ export default function AttendancePage() {
                             <Loader2 className="h-6 w-6 animate-spin text-primary" />
                         </div>
                     ) : userCentricHistoricalSummary.length > 0 ? (
-                        <ScrollArea className="max-h-[300px] pr-2"> {/* Adjusted max height */}
+                        <ScrollArea className="max-h-[300px] pr-2"> 
                         <div className="space-y-4">
                             {userCentricHistoricalSummary.map(monthReport => {
-                                // Find matching aggregated summary for the month title click
                                 const aggMonthData = aggregatedMonthlySummary.find(agg => agg.monthKey === monthReport.monthKey);
                                 return (
                                     <div key={monthReport.monthKey} className="p-3 rounded-md bg-input/30 border border-border/40">
@@ -599,7 +597,7 @@ export default function AttendancePage() {
                                                                     className="w-full justify-between p-1 h-auto text-foreground hover:bg-input/70"
                                                                     onClick={() => handleUserStatusCountClick(monthReport, userItem.email, statusKey as MockAttendanceRecord['status'])}
                                                                 >
-                                                                    <span>{statusKey.charAt(0).toUpperCase() + statusKey.slice(1).replace(/([A-Z])/g, ' $1')}:</span> {/* Format statusKey */}
+                                                                    <span>{statusKey.charAt(0).toUpperCase() + statusKey.slice(1).replace(/([A-Z])/g, ' $1')}:</span> 
                                                                     <span className="font-medium">{userItem.counts[statusKey]}</span>
                                                                 </Button>
                                                                 )
@@ -657,7 +655,7 @@ export default function AttendancePage() {
                             record.status === "Present" ? "bg-green-500/20 text-green-400" :
                             record.status === "Absent" ? "bg-red-500/20 text-red-400" :
                             record.status === "On Leave" ? "bg-yellow-500/20 text-yellow-400" :
-                            "bg-blue-500/20 text-blue-400" // Half Day
+                            "bg-blue-500/20 text-blue-400" 
                           }`}>
                             {record.status}
                           </span>
@@ -676,7 +674,3 @@ export default function AttendancePage() {
     </MainLayout>
   );
 }
-
-    
-
-    

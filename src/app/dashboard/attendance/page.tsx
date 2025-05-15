@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { format, parse, startOfMonth, isSameDay, isSameMonth, getYear, getMonth } from "date-fns";
+import { format, parse, startOfMonth, isSameDay, isSameMonth, getYear, getMonth, eachDayOfInterval, endOfMonth } from "date-fns";
 
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/hooks/use-toast";
 
-import { UsersRound, CalendarIcon as CalendarIconLucide, ListChecks, Mail, FileText, Loader2, CheckCircle, UserCheck, UserX, PlaneTakeoff, History, Users, Maximize2, Minimize2, Eye } from "lucide-react";
+import { UsersRound, CalendarIcon as CalendarIconLucide, ListChecks, Mail, FileText, Loader2, CheckCircle, UserCheck, UserX, PlaneTakeoff, History, Users, Maximize2, Minimize2, Eye, UserCog } from "lucide-react";
 
 const manualAttendanceSchema = z.object({
   employeeEmail: z.string().email({ message: "Invalid email address." }),
@@ -44,13 +44,38 @@ interface DailySummary {
   halfDay: number;
 }
 
-interface MonthlySummaryItem extends DailySummary {
-  month: string;
+// For the dialog that shows all records for a month when clicking month title
+interface AggregatedMonthlySummaryItem extends DailySummary {
+  month: string; // MMMM yyyy
   year: number;
-  monthKey: string; // For unique key, e.g., "2023-07"
+  monthKey: string; // yyyy-MM
 }
+type AggregatedMonthlySummary = AggregatedMonthlySummaryItem[];
 
-type MonthlySummary = MonthlySummaryItem[];
+
+// For the new user-centric view in the historical card
+interface UserAttendanceCounts {
+  present: number;
+  absent: number;
+  onLeave: number;
+  halfDay: number;
+}
+interface MonthlyUserReportItem {
+  email: string;
+  counts: UserAttendanceCounts;
+}
+interface UserCentricMonthReport {
+  month: string; // MMMM yyyy
+  monthKey: string; // yyyy-MM
+  year: number;
+  users: MonthlyUserReportItem[];
+}
+type UserCentricHistoricalSummary = UserCentricMonthReport[];
+
+// For the new dialog showing day-wise report for a user's status in a month
+interface UserStatusDateRecord {
+  attendanceDate: string; // "PPP" format
+}
 
 
 export default function AttendancePage() {
@@ -67,6 +92,11 @@ export default function AttendancePage() {
   
   const [isAllRecordsTableExpanded, setIsAllRecordsTableExpanded] = React.useState(false);
 
+  // State for the new user-status-day-wise dialog
+  const [isUserStatusDetailOpen, setIsUserStatusDetailOpen] = React.useState(false);
+  const [userStatusDetailTitle, setUserStatusDetailTitle] = React.useState("");
+  const [userStatusDetailDates, setUserStatusDetailDates] = React.useState<UserStatusDateRecord[]>([]);
+
 
   const form = useForm<ManualAttendanceFormValues>({
     resolver: zodResolver(manualAttendanceSchema),
@@ -78,7 +108,6 @@ export default function AttendancePage() {
   React.useEffect(() => {
     const fetchRecords = async () => {
       setIsLoadingRecords(true);
-      // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 500)); 
 
       const today = new Date();
@@ -89,11 +118,17 @@ export default function AttendancePage() {
       lastMonthDate.setMonth(today.getMonth() - 1);
       lastMonthDate.setDate(5);
 
+      const lastMonthDateUser2 = new Date(today);
+      lastMonthDateUser2.setMonth(today.getMonth() - 1);
+      lastMonthDateUser2.setDate(10);
+
+
       const twoMonthsAgoDate = new Date(today);
       twoMonthsAgoDate.setMonth(today.getMonth() - 2);
       twoMonthsAgoDate.setDate(10);
 
       const mockData: MockAttendanceRecord[] = [
+        // Today's Data
         { id: "1", employeeEmail: "user1@example.com", attendanceDate: format(today, "PPP"), status: "Present" },
         { id: "1a", employeeEmail: "user6@example.com", attendanceDate: format(today, "PPP"), status: "Present" },
         { id: "2", employeeEmail: "user2@example.com", attendanceDate: format(today, "PPP"), status: "Absent" },
@@ -101,19 +136,27 @@ export default function AttendancePage() {
         { id: "4", employeeEmail: "user4@example.com", attendanceDate: format(today, "PPP"), status: "Present" },
         { id: "5", employeeEmail: "user5@example.com", attendanceDate: format(today, "PPP"), status: "Half Day" },
         
+        // Yesterday's Data
         { id: "6", employeeEmail: "user1@example.com", attendanceDate: format(yesterday, "PPP"), status: "Present" },
         { id: "7", employeeEmail: "user2@example.com", attendanceDate: format(yesterday, "PPP"), status: "Present" },
         { id: "7a", employeeEmail: "user3@example.com", attendanceDate: format(yesterday, "PPP"), status: "Half Day" },
         
-        { id: "8", employeeEmail: "user4@example.com", attendanceDate: format(lastMonthDate, "PPP"), status: "Present" },
-        { id: "9", employeeEmail: "user1@example.com", attendanceDate: format(lastMonthDate, "PPP"), status: "Absent" },
-        { id: "10", employeeEmail: "user2@example.com", attendanceDate: format(lastMonthDate, "PPP"), status: "On Leave" },
-        { id: "11", employeeEmail: "user5@example.com", attendanceDate: format(lastMonthDate, "PPP"), status: "Present" },
-        { id: "11a", employeeEmail: "user6@example.com", attendanceDate: format(lastMonthDate, "PPP"), status: "Half Day" },
+        // Last Month Data - User 1
+        { id: "8", employeeEmail: "user1@example.com", attendanceDate: format(lastMonthDate, "PPP"), status: "Present" },
+        { id: "8b", employeeEmail: "user1@example.com", attendanceDate: format(new Date(lastMonthDate).setDate(lastMonthDate.getDate()+1), "PPP"), status: "Present" },
+        { id: "9", employeeEmail: "user1@example.com", attendanceDate: format(new Date(lastMonthDate).setDate(lastMonthDate.getDate()+2), "PPP"), status: "Absent" },
+        // Last Month Data - User 2
+        { id: "10", employeeEmail: "user2@example.com", attendanceDate: format(lastMonthDateUser2, "PPP"), status: "On Leave" },
+        { id: "10b", employeeEmail: "user2@example.com", attendanceDate: format(new Date(lastMonthDateUser2).setDate(lastMonthDateUser2.getDate()+1), "PPP"), status: "Present" },
+        // Last Month Data - User 5 & 6
+        { id: "11", employeeEmail: "user5@example.com", attendanceDate: format(new Date(lastMonthDate).setDate(lastMonthDate.getDate()+3), "PPP"), status: "Present" },
+        { id: "11a", employeeEmail: "user6@example.com", attendanceDate: format(new Date(lastMonthDate).setDate(lastMonthDate.getDate()+4), "PPP"), status: "Half Day" },
         
+        // Two Months Ago Data
         { id: "12", employeeEmail: "user3@example.com", attendanceDate: format(twoMonthsAgoDate, "PPP"), status: "Present" },
         { id: "13", employeeEmail: "user4@example.com", attendanceDate: format(twoMonthsAgoDate, "PPP"), status: "Absent" },
         { id: "14", employeeEmail: "user1@example.com", attendanceDate: format(twoMonthsAgoDate, "PPP"), status: "Present" },
+        { id: "14b", employeeEmail: "user1@example.com", attendanceDate: format(new Date(twoMonthsAgoDate).setDate(twoMonthsAgoDate.getDate()+1), "PPP"), status: "On Leave" },
       ];
       setAttendanceRecords(mockData);
       setIsLoadingRecords(false);
@@ -151,35 +194,77 @@ export default function AttendancePage() {
     return summary;
   }, [attendanceRecords]);
 
-  const historicalSummary = React.useMemo<MonthlySummary>(() => {
-    const summaryByMonth: Record<string, DailySummary & { count: number, year: number, monthNum: number }> = {};
-
+  // For the original monthly summary dialog (all users for a month)
+  const aggregatedMonthlySummary = React.useMemo<AggregatedMonthlySummary>(() => {
+    const summaryByMonth: Record<string, DailySummary & { year: number, monthNum: number }> = {};
     attendanceRecords.forEach(record => {
       const recordDate = parse(record.attendanceDate, "PPP", new Date());
-      const monthKey = format(startOfMonth(recordDate), "yyyy-MM"); // Use yyyy-MM for sorting
-      const displayMonth = format(startOfMonth(recordDate), "MMMM yyyy");
-
+      const monthKey = format(startOfMonth(recordDate), "yyyy-MM");
 
       if (!summaryByMonth[monthKey]) {
-        summaryByMonth[monthKey] = { present: 0, absent: 0, onLeave: 0, halfDay: 0, count: 0, year: getYear(recordDate), monthNum: getMonth(recordDate) };
+        summaryByMonth[monthKey] = { present: 0, absent: 0, onLeave: 0, halfDay: 0, year: getYear(recordDate), monthNum: getMonth(recordDate) };
       }
-
       if (record.status === "Present") summaryByMonth[monthKey].present++;
       else if (record.status === "Absent") summaryByMonth[monthKey].absent++;
       else if (record.status === "On Leave") summaryByMonth[monthKey].onLeave++;
       else if (record.status === "Half Day") summaryByMonth[monthKey].halfDay++;
-      summaryByMonth[monthKey].count++;
     });
-    
     return Object.entries(summaryByMonth)
-      .map(([key, data]) => ({ 
-        month: format(new Date(data.year, data.monthNum), "MMMM yyyy"), // Format for display
-        year: data.year,
+      .map(([key, data]) => ({
         monthKey: key,
-        ...data 
+        month: format(new Date(data.year, data.monthNum), "MMMM yyyy"),
+        year: data.year,
+        present: data.present,
+        absent: data.absent,
+        onLeave: data.onLeave,
+        halfDay: data.halfDay,
       }))
+      .sort((a, b) => new Date(b.year, getMonth(parse(b.month, "MMMM yyyy", new Date()))).getTime() - new Date(a.year, getMonth(parse(a.month, "MMMM yyyy", new Date()))).getTime());
+  }, [attendanceRecords]);
+
+
+  const userCentricHistoricalSummary = React.useMemo<UserCentricHistoricalSummary>(() => {
+    const summaryByMonthUser: Record<string, Record<string, UserAttendanceCounts & { year: number; monthNum: number }>> = {};
+
+    attendanceRecords.forEach(record => {
+      const recordDate = parse(record.attendanceDate, "PPP", new Date());
+      const monthKey = format(startOfMonth(recordDate), "yyyy-MM"); // "2023-07"
+      const userEmail = record.employeeEmail;
+
+      if (!summaryByMonthUser[monthKey]) {
+        summaryByMonthUser[monthKey] = {};
+      }
+      if (!summaryByMonthUser[monthKey][userEmail]) {
+        summaryByMonthUser[monthKey][userEmail] = { present: 0, absent: 0, onLeave: 0, halfDay: 0, year: getYear(recordDate), monthNum: getMonth(recordDate) };
+      }
+
+      if (record.status === "Present") summaryByMonthUser[monthKey][userEmail].present++;
+      else if (record.status === "Absent") summaryByMonthUser[monthKey][userEmail].absent++;
+      else if (record.status === "On Leave") summaryByMonthUser[monthKey][userEmail].onLeave++;
+      else if (record.status === "Half Day") summaryByMonthUser[monthKey][userEmail].halfDay++;
+    });
+
+    return Object.entries(summaryByMonthUser)
+      .map(([monthKey, usersData]) => {
+        const firstUserEntry = Object.values(usersData)[0]; // To get year and monthNum
+        return {
+          monthKey,
+          month: format(new Date(firstUserEntry.year, firstUserEntry.monthNum), "MMMM yyyy"),
+          year: firstUserEntry.year,
+          users: Object.entries(usersData).map(([email, counts]) => ({
+            email,
+            counts: {
+              present: counts.present,
+              absent: counts.absent,
+              onLeave: counts.onLeave,
+              halfDay: counts.halfDay,
+            },
+          })).sort((a,b) => a.email.localeCompare(b.email)),
+        };
+      })
       .sort((a,b) => new Date(b.year, getMonth(parse(b.month, "MMMM yyyy", new Date()))).getTime() - new Date(a.year, getMonth(parse(a.month, "MMMM yyyy", new Date()))).getTime());
   }, [attendanceRecords]);
+
 
   const handleDailySummaryItemClick = (status: MockAttendanceRecord['status']) => {
     const today = new Date();
@@ -191,14 +276,33 @@ export default function AttendancePage() {
     setIsDailyDetailDialogOpen(true);
   };
   
-  const handleMonthlySummaryItemClick = (monthData: MonthlySummaryItem) => {
+  // For clicking the month title (shows all records for all users for that month)
+  const handleMonthTitleClick = (monthData: AggregatedMonthlySummaryItem) => {
     const records = attendanceRecords.filter(r => {
         const recordDate = parse(r.attendanceDate, "PPP", new Date());
         return isSameMonth(recordDate, parse(monthData.month, "MMMM yyyy", new Date())) && getYear(recordDate) === monthData.year;
     });
-    setMonthlyDetailDialogTitle(`Attendance for ${monthData.month}`);
+    setMonthlyDetailDialogTitle(`All Attendance for ${monthData.month}`);
     setMonthlyDetailDialogRecords(records);
     setIsMonthlyDetailDialogOpen(true);
+  };
+
+  // For clicking a specific user's status count in a month
+  const handleUserStatusCountClick = (monthReport: UserCentricMonthReport, userEmail: string, status: MockAttendanceRecord['status']) => {
+    const targetMonth = parse(monthReport.month, "MMMM yyyy", new Date());
+    const dates = attendanceRecords
+      .filter(r => 
+        r.employeeEmail === userEmail &&
+        r.status === status &&
+        isSameMonth(parse(r.attendanceDate, "PPP", new Date()), targetMonth) &&
+        getYear(parse(r.attendanceDate, "PPP", new Date())) === monthReport.year
+      )
+      .map(r => ({ attendanceDate: r.attendanceDate }))
+      .sort((a,b) => parse(a.attendanceDate, "PPP", new Date()).getDate() - parse(b.attendanceDate, "PPP", new Date()).getDate());
+
+    setUserStatusDetailTitle(`${userEmail} - ${status} (${monthReport.month})`);
+    setUserStatusDetailDates(dates);
+    setIsUserStatusDetailOpen(true);
   };
 
 
@@ -212,6 +316,7 @@ export default function AttendancePage() {
           <p className="text-muted-foreground">Track and manage employee attendance records.</p>
         </header>
 
+        {/* Dialog for Daily Status Details */}
         <Dialog open={isDailyDetailDialogOpen} onOpenChange={setIsDailyDetailDialogOpen}>
           <DialogContent className="sm:max-w-[425px] bg-card border-border">
             <DialogHeader>
@@ -234,6 +339,7 @@ export default function AttendancePage() {
           </DialogContent>
         </Dialog>
 
+        {/* Dialog for All Monthly Records (when month title is clicked) */}
         <Dialog open={isMonthlyDetailDialogOpen} onOpenChange={setIsMonthlyDetailDialogOpen}>
           <DialogContent className="sm:max-w-md md:max-w-lg bg-card border-border">
             <DialogHeader>
@@ -276,10 +382,34 @@ export default function AttendancePage() {
           </DialogContent>
         </Dialog>
 
+        {/* Dialog for User's Day-wise Status in a Month */}
+        <Dialog open={isUserStatusDetailOpen} onOpenChange={setIsUserStatusDetailOpen}>
+            <DialogContent className="sm:max-w-sm bg-card border-border">
+                <DialogHeader>
+                    <DialogTitle className="text-primary">{userStatusDetailTitle}</DialogTitle>
+                    <DialogDescription>Specific dates for the selected status.</DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="max-h-[60vh]">
+                    {userStatusDetailDates.length > 0 ? (
+                        <ul className="space-y-2 py-4">
+                            {userStatusDetailDates.map((record, index) => (
+                                <li key={index} className="text-sm text-foreground p-2 bg-input/50 rounded-md">
+                                    {record.attendanceDate}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-muted-foreground text-center py-4">No dates found for this selection.</p>
+                    )}
+                </ScrollArea>
+            </DialogContent>
+        </Dialog>
+
+
         <Card className="mb-8 shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 animate-fade-in-slide-up">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xl font-semibold text-primary">Manage Employee Attendance</CardTitle>
-            <UsersRound className="h-8 w-8 text-accent" />
+            <UserCog className="h-8 w-8 text-accent" />
           </CardHeader>
           <CardContent>
             <CardDescription className="text-sm text-muted-foreground mb-6">
@@ -432,31 +562,58 @@ export default function AttendancePage() {
                 </CardHeader>
                 <CardContent>
                     <CardDescription className="text-sm text-muted-foreground mb-4">
-                        Monthly attendance summaries. Click a month for details.
+                        Monthly user attendance summaries. Click a month title for all records, or a user's status count for day-wise details.
                     </CardDescription>
                      {isLoadingRecords ? (
                         <div className="flex items-center justify-center h-24">
                             <Loader2 className="h-6 w-6 animate-spin text-primary" />
                         </div>
-                    ) : historicalSummary.length > 0 ? (
-                        <ScrollArea className="max-h-60 pr-2">
+                    ) : userCentricHistoricalSummary.length > 0 ? (
+                        <ScrollArea className="max-h-[300px] pr-2"> {/* Adjusted max height */}
                         <div className="space-y-4">
-                            {historicalSummary.map(monthData => (
-                                <Button 
-                                    key={monthData.monthKey} 
-                                    variant="outline" 
-                                    className="w-full p-3 rounded-md bg-input/50 border border-border/40 hover:bg-input/80 h-auto flex flex-col items-start text-left"
-                                    onClick={() => handleMonthlySummaryItemClick(monthData)}
-                                >
-                                    <h3 className="font-semibold text-accent mb-2">{monthData.month}</h3>
-                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm w-full">
-                                        <div className="flex items-center justify-between"><span>Present:</span> <span className="font-medium">{monthData.present}</span></div>
-                                        <div className="flex items-center justify-between"><span>Absent:</span> <span className="font-medium">{monthData.absent}</span></div>
-                                        <div className="flex items-center justify-between"><span>On Leave:</span> <span className="font-medium">{monthData.onLeave}</span></div>
-                                        <div className="flex items-center justify-between"><span>Half Day:</span> <span className="font-medium">{monthData.halfDay}</span></div>
+                            {userCentricHistoricalSummary.map(monthReport => {
+                                // Find matching aggregated summary for the month title click
+                                const aggMonthData = aggregatedMonthlySummary.find(agg => agg.monthKey === monthReport.monthKey);
+                                return (
+                                    <div key={monthReport.monthKey} className="p-3 rounded-md bg-input/30 border border-border/40">
+                                        <Button 
+                                            variant="link" 
+                                            className="text-lg font-semibold text-accent mb-3 p-0 h-auto hover:underline"
+                                            onClick={() => aggMonthData && handleMonthTitleClick(aggMonthData)}
+                                            disabled={!aggMonthData}
+                                        >
+                                            {monthReport.month}
+                                        </Button>
+                                        {monthReport.users.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {monthReport.users.map(userItem => (
+                                                    <div key={userItem.email} className="p-2.5 rounded bg-card/50 border border-border/20">
+                                                        <p className="text-sm font-medium text-primary/90 mb-1.5">{userItem.email}</p>
+                                                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                                                            {(Object.keys(userItem.counts) as Array<keyof UserAttendanceCounts>).map(statusKey => (
+                                                                userItem.counts[statusKey] > 0 && (
+                                                                <Button
+                                                                    key={statusKey}
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="w-full justify-between p-1 h-auto text-foreground hover:bg-input/70"
+                                                                    onClick={() => handleUserStatusCountClick(monthReport, userItem.email, statusKey as MockAttendanceRecord['status'])}
+                                                                >
+                                                                    <span>{statusKey.charAt(0).toUpperCase() + statusKey.slice(1).replace(/([A-Z])/g, ' $1')}:</span> {/* Format statusKey */}
+                                                                    <span className="font-medium">{userItem.counts[statusKey]}</span>
+                                                                </Button>
+                                                                )
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                             <p className="text-xs text-muted-foreground text-center py-2">No user records for this month.</p>
+                                        )}
                                     </div>
-                                </Button>
-                            ))}
+                                );
+                            })}
                         </div>
                         </ScrollArea>
                     ) : (
@@ -519,6 +676,5 @@ export default function AttendancePage() {
     </MainLayout>
   );
 }
-
 
     

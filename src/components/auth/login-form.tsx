@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, Cpu, Shield, Loader2, ArrowRight, Wand2 } from "lucide-react"; // Changed ShieldLock to Shield
+import { Cpu, Shield, Loader2, ArrowRight, Wand2 } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,8 @@ import { enhanceSecurity, EnhanceSecurityInput } from "@/ai/flows/enhance-securi
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  username: z.string().min(1, { message: "System ID is required." }), // Changed message
-  password: z.string().min(1, { message: "Auth Key is required." }), // Changed message
+  username: z.string().min(1, { message: "System ID is required." }),
+  password: z.string().min(1, { message: "Auth Key is required." }),
 });
 
 type LoginFormValues = z.infer<typeof formSchema>;
@@ -34,12 +34,14 @@ interface LoginFormProps {
   setIsTyping: (isTyping: boolean) => void;
 }
 
+const MAX_PASSWORD_SEGMENTS = 12;
+
 export function LoginForm({ setIsTyping }: LoginFormProps) {
-  const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
   const [clientUserAgent, setClientUserAgent] = React.useState("");
   const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [passwordProgress, setPasswordProgress] = React.useState(0);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -70,6 +72,13 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
     }, 1500);
   };
 
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>, fieldChange: (value: string) => void) => {
+    const value = e.target.value;
+    fieldChange(value);
+    setPasswordProgress(value.length);
+    handleKeyDown(); // Also trigger typing animation for password
+  };
+
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     setIsTyping(false);
@@ -78,13 +87,13 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
     try {
       const securityInput: EnhanceSecurityInput = {
         username: data.username,
-        ipAddress: "::1", // Updated placeholder
+        ipAddress: "::1",
         loginTimestamp: new Date().toISOString(),
         userAgent: clientUserAgent,
         loginFailuresInLastHour: 0,
       };
 
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       const securityResult = await enhanceSecurity(securityInput);
 
       if (securityResult.isSuspicious) {
@@ -92,7 +101,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
           variant: "destructive",
           title: (
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5" /> Authorization Anomaly {/* Changed ShieldLock to Shield */}
+              <Shield className="h-5 w-5" /> Authorization Anomaly
             </div>
           ),
           description: securityResult.reason || "Suspicious activity detected. System integrity protocols engaged.",
@@ -123,10 +132,10 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
   };
 
   return (
-    <Card className="w-full h-full flex flex-col justify-center shadow-xl rounded-md border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-accent/70 hover:-translate-y-1 hover:animate-subtle-glow">
+    <Card className="w-full h-full flex flex-col justify-center shadow-xl rounded-md border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/70 hover:-translate-y-1 animate-fade-in-slide-up">
       <CardHeader className="text-center pt-10 pb-6">
         <CardTitle className="text-4xl font-bold tracking-tight text-primary">
-          AI System Interface {/* Changed Title */}
+          AI System Interface
         </CardTitle>
         <CardDescription className="pt-2 text-md text-muted-foreground">
           Authenticate to access neural network.
@@ -134,7 +143,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
       </CardHeader>
       <CardContent className="px-8 pb-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="username"
@@ -142,13 +151,13 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-foreground/80">System ID</FormLabel>
                   <FormControl>
-                    <div className="relative flex items-center">
-                      <Cpu className="absolute left-3 h-5 w-5 text-muted-foreground peer-focus:text-primary transition-colors" /> {/* Changed Icon */}
+                    <div className="relative flex items-center group">
+                      <Cpu className="absolute left-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         placeholder="node.identifier@network.ai"
                         {...field}
                         onKeyDown={handleKeyDown}
-                        className="py-3 pl-10 text-base rounded-sm peer focus:border-primary/70 transition-colors duration-300 bg-input focus:bg-input/70"
+                        className="py-3 pl-10 text-base rounded-sm peer focus:border-primary/70 transition-colors duration-300 bg-input focus:bg-input/70 focus:ring-1 focus:ring-primary/70"
                         aria-label="System ID or Username"
                       />
                     </div>
@@ -164,33 +173,32 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-medium text-foreground/80">Auth Key</FormLabel>
-                  <FormControl>
-                    <div className="relative flex items-center">
-                       <Shield className="absolute left-3 h-5 w-5 text-muted-foreground peer-focus:text-primary transition-colors" /> {/* Changed ShieldLock to Shield */}
+                  <div className="relative flex items-center group">
+                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+                    <FormControl>
                       <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••••••"
+                        type="password"
+                        placeholder="Enter sequence..." // Placeholder isn't really visible due to transparent text
                         {...field}
-                        onKeyDown={handleKeyDown}
-                        className="py-3 pl-10 pr-12 text-base rounded-sm peer focus:border-primary/70 transition-colors duration-300 bg-input focus:bg-input/70"
+                        onChange={(e) => handlePasswordChange(e, field.onChange)}
+                        onKeyDown={handleKeyDown} // Re-add handleKeyDown if you want typing animation for password too
+                        className="py-3 pl-10 pr-4 text-base rounded-sm peer focus:border-primary/70 transition-colors duration-300 bg-input focus:bg-input/70 focus:ring-1 focus:ring-primary/70 text-transparent caret-primary select-none"
                         aria-label="Authentication Key"
+                        autoComplete="new-password"
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-primary"
-                        onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? "Hide Auth Key" : "Show Auth Key"}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
+                    </FormControl>
+                  </div>
+                  <div className="flex space-x-1.5 mt-2 pl-1 h-6 items-center" aria-hidden="true">
+                    {Array.from({ length: MAX_PASSWORD_SEGMENTS }).map((_, index) => (
+                      <span
+                        key={index}
+                        className={cn(
+                          "h-3 w-full flex-1 rounded-sm transition-all duration-150 ease-in-out",
+                          index < passwordProgress ? "bg-primary shadow-[0_0_8px_hsl(var(--primary))]" : "bg-muted/30"
                         )}
-                      </Button>
-                    </div>
-                  </FormControl>
+                      />
+                    ))}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -198,23 +206,23 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/80 text-primary-foreground font-semibold py-3 text-lg rounded-sm shadow-md hover:shadow-primary/40 transition-all duration-300 ease-out group hover:scale-[1.02] hover:-translate-y-0.5"
+              className="w-full bg-primary hover:bg-primary/80 text-primary-foreground font-semibold py-3 text-lg rounded-sm shadow-md hover:shadow-primary/40 transition-all duration-300 ease-out group hover:scale-[1.03] hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/50"
               disabled={isLoading}
               aria-label="Initiate Connection button"
             >
               {isLoading ? (
                 <Loader2 className="mr-2 h-6 w-6 animate-spin" />
               ) : (
-                "Initiate Connection" // Changed Button Text
+                "Initiate Connection"
               )}
-              {!isLoading && <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:rotate-[5deg]" />}
+              {!isLoading && <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5 group-hover:rotate-[10deg]" />}
             </Button>
           </form>
         </Form>
-        <div className="mt-8 text-center">
+        <div className="mt-10 text-center">
           <Link
             href="#"
-            className="text-sm text-muted-foreground hover:text-accent hover:underline font-medium transition-all duration-300 transform hover:scale-105 inline-block"
+            className="text-sm text-muted-foreground hover:text-accent hover:underline font-medium transition-all duration-300 transform hover:scale-105 inline-block hover:drop-shadow-[0_0_5px_hsl(var(--accent))]"
           >
             Auth Key Recovery?
           </Link>

@@ -127,21 +127,29 @@ body {
       animation: subtle-glow 3s infinite ease-in-out;
   }
 
-  @keyframes animated-gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  @keyframes light-sweep {
+    0% {
+      background-position: -100% 0; /* Start position of the gradient */
+    }
+    100% {
+      background-position: 200% 0; /* End position, making it sweep across */
+    }
   }
-  .animate-gradient-bg {
-    background-image: linear-gradient(
-      135deg,
-      hsl(var(--background)),
-      hsl(var(--primary) / 0.15),
-      hsl(var(--accent) / 0.1),
-      hsl(var(--secondary) / 0.25),
-      hsl(var(--background))
+
+  .animate-light-sweep-bg {
+    background: linear-gradient(
+      100deg, /* Angle of the sweep */
+      hsl(var(--background)) 0%,
+      hsl(var(--background)) 35%, /* Main background color */
+      hsl(var(--primary) / 0.08) 45%, /* Start of the soft light band, very subtle */
+      hsl(var(--primary) / 0.12) 50%, /* Core of the light, still subtle */
+      hsl(var(--primary) / 0.08) 55%, /* End of the soft light band */
+      hsl(var(--background)) 65%, /* Back to main background color */
+      hsl(var(--background)) 100%
     );
-    background-size: 400% 400%;
-    animation: animated-gradient 25s ease infinite;
+    background-size: 300% 100%; /* Make the gradient much wider than the screen */
+    animation: light-sweep 15s linear infinite; /* Adjust duration for desired speed */
   }
 }
+
+    

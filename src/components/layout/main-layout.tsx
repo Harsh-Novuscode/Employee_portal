@@ -15,7 +15,7 @@ import { PanelLeft } from "lucide-react";
 export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen text-foreground animate-gradient-bg"> {/* Removed old gradient, added new animation class */}
+      <div className="flex min-h-screen text-foreground animate-light-sweep-bg"> {/* Updated animation class */}
         <AppSidebar />
         <SidebarInset className="flex-1 flex flex-col">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b border-border/60 bg-card/80 px-6 backdrop-blur-sm md:hidden">
@@ -36,3 +36,5 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
+    

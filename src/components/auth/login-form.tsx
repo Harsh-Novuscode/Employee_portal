@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Cpu, Shield, Loader2, ArrowRight, Wand2, Eye, EyeOff } from "lucide-react";
+import { Cpu, Shield, Loader2, ArrowRight, Wand2, Bot } from "lucide-react"; // Changed Icons
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -34,14 +34,11 @@ interface LoginFormProps {
   setIsTyping: (isTyping: boolean) => void;
 }
 
-const MAX_PASSWORD_SEGMENTS = 12;
-
 export function LoginForm({ setIsTyping }: LoginFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
   const [clientUserAgent, setClientUserAgent] = React.useState("");
   const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  const [passwordProgress, setPasswordProgress] = React.useState(0);
   const [showPassword, setShowPassword] = React.useState(false);
 
   React.useEffect(() => {
@@ -76,7 +73,6 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>, fieldChange: (value: string) => void) => {
     const value = e.target.value;
     fieldChange(value);
-    setPasswordProgress(value.length);
     handleTyping();
   };
 
@@ -96,7 +92,6 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
         loginFailuresInLastHour: 0, // Placeholder, implement actual tracking if needed
       };
 
-      // Simulate API call & AI processing
       await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
       const securityResult = await enhanceSecurity(securityInput);
 
@@ -121,8 +116,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
           description: "Welcome to the AI System Interface. Access protocols initiated.",
           duration: 5000,
         });
-        // Here you would typically redirect the user or update app state
-        // For demo: form.reset(); setPasswordProgress(0);
+        // form.reset();
       }
     } catch (error) {
       console.error("Auth error:", error);
@@ -202,21 +196,15 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                       size="icon"
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-primary"
                       onClick={toggleShowPassword}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label="Toggle password visibility"
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      <Bot className="h-5 w-5" />
                     </Button>
                   </div>
-                  {!showPassword && (
-                    <div className="flex space-x-1.5 mt-2 pl-1 h-6 items-center" aria-hidden="true">
-                      {Array.from({ length: MAX_PASSWORD_SEGMENTS }).map((_, index) => (
-                        <span
-                          key={index}
-                          className={cn(
-                            "h-3 w-full flex-1 rounded-sm transition-all duration-150 ease-in-out",
-                            index < passwordProgress ? "bg-primary shadow-[0_0_8px_hsl(var(--primary))]" : "bg-muted/30"
-                          )}
-                        />
+                  {!showPassword && field.value && field.value.length > 0 && (
+                    <div className="flex space-x-1 mt-2 h-6 items-center" aria-hidden="true">
+                      {Array.from({ length: field.value.length }).map((_, index) => (
+                        <Bot key={index} className="h-4 w-4 text-primary animate-pulse" />
                       ))}
                     </div>
                   )}

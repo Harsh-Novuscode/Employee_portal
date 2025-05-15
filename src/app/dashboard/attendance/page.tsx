@@ -11,37 +11,59 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label"; // Keep if needed for other parts, but form now uses FormLabel
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 
-import { CalendarCheck, UserCheck, CheckCircle, Clock, UsersRound, CalendarIcon as CalendarIconLucide, LogIn, LogOut, ListChecks, Mail } from "lucide-react";
+import { CalendarCheck, UserCheck, CheckCircle, Clock, UsersRound, CalendarIcon as CalendarIconLucide, ListChecks, Mail, FileText, Loader2 } from "lucide-react";
 
 const manualAttendanceSchema = z.object({
   employeeEmail: z.string().email({ message: "Invalid email address." }),
   attendanceDate: z.date({ required_error: "Attendance date is required." }),
-  checkInTime: z.string().optional(), // Optional for statuses like "Absent" or "On Leave"
-  checkOutTime: z.string().optional(),
   status: z.enum(["Present", "Absent", "On Leave", "Half Day"], { required_error: "Status is required." }),
 });
 
 type ManualAttendanceFormValues = z.infer<typeof manualAttendanceSchema>;
 
+interface MockAttendanceRecord {
+  id: string;
+  employeeEmail: string;
+  attendanceDate: string;
+  status: "Present" | "Absent" | "On Leave" | "Half Day";
+}
+
 export default function AttendancePage() {
   const [lastCheckIn, setLastCheckIn] = React.useState<string | null>(null);
   const [currentStatus, setCurrentStatus] = React.useState<"Checked Out" | "Checked In">("Checked Out");
+  const [isLoadingRecords, setIsLoadingRecords] = React.useState(true);
+  const [attendanceRecords, setAttendanceRecords] = React.useState<MockAttendanceRecord[]>([]);
 
   const form = useForm<ManualAttendanceFormValues>({
     resolver: zodResolver(manualAttendanceSchema),
     defaultValues: {
       employeeEmail: "",
-      checkInTime: "",
-      checkOutTime: "",
     },
   });
+
+  React.useEffect(() => {
+    // Simulate fetching data
+    const fetchRecords = async () => {
+      setIsLoadingRecords(true);
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+      const mockData: MockAttendanceRecord[] = [
+        { id: "1", employeeEmail: "user1@example.com", attendanceDate: format(new Date(), "PPP"), status: "Present" },
+        { id: "2", employeeEmail: "user2@example.com", attendanceDate: format(new Date(Date.now() - 86400000), "PPP"), status: "Absent" },
+        { id: "3", employeeEmail: "user3@example.com", attendanceDate: format(new Date(), "PPP"), status: "On Leave" },
+      ];
+      setAttendanceRecords(mockData);
+      setIsLoadingRecords(false);
+    };
+    fetchRecords();
+  }, []);
 
   const handleMarkOwnAttendance = () => {
     const now = new Date();
@@ -57,7 +79,16 @@ export default function AttendancePage() {
 
   const onManualSubmit = (data: ManualAttendanceFormValues) => {
     console.log("Manual Attendance Data:", data);
-    // TODO: Implement API call to save/update attendance
+    // Simulate API call to save/update attendance
+    const newRecord: MockAttendanceRecord = {
+        id: String(attendanceRecords.length + 1 + Math.random()), // simple unique id
+        employeeEmail: data.employeeEmail,
+        attendanceDate: format(data.attendanceDate, "PPP"),
+        status: data.status,
+    }
+    // Add to the local state to simulate real-time update
+    setAttendanceRecords(prevRecords => [newRecord, ...prevRecords]);
+
     toast({
       title: "Attendance Recorded",
       description: `Attendance for ${data.employeeEmail} on ${format(data.attendanceDate, "PPP")} has been recorded as ${data.status}.`,
@@ -87,7 +118,7 @@ export default function AttendancePage() {
             </CardDescription>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onManualSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <FormField
                     control={form.control}
                     name="employeeEmail"
@@ -138,40 +169,7 @@ export default function AttendancePage() {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                  <FormField
-                    control={form.control}
-                    name="checkInTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium text-foreground/80 flex items-center">
-                          <LogIn className="mr-2 h-4 w-4 text-muted-foreground" /> Check-in Time
-                        </FormLabel>
-                        <FormControl>
-                          <Input type="time" {...field} className="bg-input focus:bg-input/70" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="checkOutTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium text-foreground/80 flex items-center">
-                          <LogOut className="mr-2 h-4 w-4 text-muted-foreground" /> Check-out Time
-                        </FormLabel>
-                        <FormControl>
-                          <Input type="time" {...field} className="bg-input focus:bg-input/70" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="status"
                     render={({ field }) => (
@@ -197,60 +195,70 @@ export default function AttendancePage() {
                     )}
                   />
                 </div>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full md:w-auto bg-primary hover:bg-primary/80 text-primary-foreground font-semibold py-2.5 px-6 rounded-sm shadow-md hover:shadow-primary/40 transition-all duration-300 ease-out group hover:scale-[1.02] hover:-translate-y-0.5"
                   disabled={form.formState.isSubmitting}
                 >
-                  {form.formState.isSubmitting ? "Saving..." : "Save Attendance"}
-                   <CheckCircle className="ml-2 h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {form.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : "Save Attendance"}
+                   {!form.formState.isSubmitting && <CheckCircle className="ml-2 h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />}
                 </Button>
               </form>
             </Form>
           </CardContent>
         </Card>
 
-        {/* Existing Cards for Overview */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mb-8">
-            <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 animate-fade-in-slide-up" style={{animationDelay: "100ms"}}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xl font-semibold text-primary">Daily Check-ins Overview</CardTitle>
-                    <UserCheck className="h-8 w-8 text-accent" />
-                </CardHeader>
-                <CardContent>
-                    <CardDescription className="text-sm text-muted-foreground mb-4">
-                        View today's attendance and overall presence.
-                    </CardDescription>
-                    <div className="mt-4 p-4 h-40 rounded-md bg-input/50 flex flex-col items-center justify-center border border-border/40">
-                        <CheckCircle className="h-10 w-10 text-primary/70 mb-2" />
-                        <p className="text-muted-foreground text-sm">Today's check-in data will appear here.</p>
-                        <p className="text-xs text-muted-foreground/70 mt-1">(e.g., List of employees checked in)</p>
-                    </div>
-                </CardContent>
-            </Card>
-            <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 animate-fade-in-slide-up" style={{animationDelay: "200ms"}}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xl font-semibold text-primary">Attendance Reports</CardTitle>
-                    <CalendarCheck className="h-8 w-8 text-primary" />
-                </CardHeader>
-                <CardContent>
-                    <CardDescription className="text-sm text-muted-foreground mb-4">
-                        Generate and view historical attendance reports.
-                    </CardDescription>
-                     <div className="mt-4 p-4 h-40 rounded-md bg-input/50 flex flex-col items-center justify-center border border-border/40">
-                        <CalendarCheck className="h-10 w-10 text-accent/70 mb-2" />
-                        <p className="text-muted-foreground text-sm">Report generation tools will be here.</p>
-                        <p className="text-xs text-muted-foreground/70 mt-1">(e.g., Date pickers, filters)</p>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+        {/* View Attendance Records Card */}
+        <Card className="mb-8 shadow-xl rounded-md border border-border/60 bg-card animate-fade-in-slide-up" style={{animationDelay: "100ms"}}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xl font-semibold text-primary">View Attendance Records</CardTitle>
+            <FileText className="h-8 w-8 text-accent" />
+          </CardHeader>
+          <CardContent>
+            {isLoadingRecords ? (
+              <div className="flex items-center justify-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-3 text-muted-foreground">Loading records...</p>
+              </div>
+            ) : attendanceRecords.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Employee Email</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {attendanceRecords.map((record) => (
+                    <TableRow key={record.id}>
+                      <TableCell>{record.employeeEmail}</TableCell>
+                      <TableCell>{record.attendanceDate}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          record.status === "Present" ? "bg-green-500/20 text-green-400" :
+                          record.status === "Absent" ? "bg-red-500/20 text-red-400" :
+                          record.status === "On Leave" ? "bg-yellow-500/20 text-yellow-400" :
+                          "bg-blue-500/20 text-blue-400" // Half Day
+                        }`}>
+                          {record.status}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p className="text-center text-muted-foreground h-40 flex items-center justify-center">No attendance records found.</p>
+            )}
+          </CardContent>
+        </Card>
 
-         {/* My Attendance Status Section */}
-         <div className="mt-8 p-6 bg-card border border-border/60 rounded-md shadow-xl animate-fade-in-slide-up" style={{animationDelay: "300ms"}}>
+        {/* My Attendance Status Section - Kept for logged-in user's own quick check-in */}
+         <div className="mt-8 p-6 bg-card border border-border/60 rounded-md shadow-xl animate-fade-in-slide-up" style={{animationDelay: "200ms"}}>
             <h2 className="text-2xl font-semibold text-primary mb-4">My Attendance Status</h2>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <Button 
+                <Button
                     onClick={handleMarkOwnAttendance}
                     className="bg-primary hover:bg-primary/80 text-primary-foreground font-semibold py-3 px-6 text-lg rounded-sm shadow-md hover:shadow-primary/40 transition-all duration-300 ease-out group hover:scale-[1.03] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/50"
                 >
@@ -274,10 +282,45 @@ export default function AttendancePage() {
                 Use this to mark your own attendance for today. Your check-in time and status will be updated.
             </p>
         </div>
+
+         {/* Existing Cards for Overview - Now less relevant, can be removed or re-purposed later */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mb-8 mt-8">
+            <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 animate-fade-in-slide-up" style={{animationDelay: "300ms"}}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xl font-semibold text-primary">Daily Check-ins Overview</CardTitle>
+                    <UserCheck className="h-8 w-8 text-accent" />
+                </CardHeader>
+                <CardContent>
+                    <CardDescription className="text-sm text-muted-foreground mb-4">
+                        View today's attendance and overall presence. (Data from records table)
+                    </CardDescription>
+                    <div className="mt-4 p-4 h-40 rounded-md bg-input/50 flex flex-col items-center justify-center border border-border/40">
+                        <CheckCircle className="h-10 w-10 text-primary/70 mb-2" />
+                        <p className="text-muted-foreground text-sm">Summary of today's check-ins from records.</p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 animate-fade-in-slide-up" style={{animationDelay: "400ms"}}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xl font-semibold text-primary">Historical Reports</CardTitle>
+                    <CalendarCheck className="h-8 w-8 text-primary" />
+                </CardHeader>
+                <CardContent>
+                    <CardDescription className="text-sm text-muted-foreground mb-4">
+                        Generate and view historical attendance reports. (Future functionality)
+                    </CardDescription>
+                     <div className="mt-4 p-4 h-40 rounded-md bg-input/50 flex flex-col items-center justify-center border border-border/40">
+                        <CalendarCheck className="h-10 w-10 text-accent/70 mb-2" />
+                        <p className="text-muted-foreground text-sm">Advanced reporting tools will be here.</p>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+
       </div>
     </MainLayout>
   );
 }
-
+    
 
     

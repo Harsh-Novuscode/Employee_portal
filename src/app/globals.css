@@ -37,6 +37,7 @@ body {
     --chart-4: 230 50% 55%;
     --chart-5: 210 60% 60%;
 
+    /* Sidebar Specific Theme Variables */
     --sidebar-background: 220 25% 12%; /* Darker for sidebar */
     --sidebar-foreground: 210 30% 90%;
     --sidebar-primary: 200 90% 65%;

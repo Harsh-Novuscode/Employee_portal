@@ -13,25 +13,29 @@ export default function DashboardPage() {
       title: "System Status",
       icon: <ServerCog className="h-8 w-8 text-primary" />,
       description: "All systems operational. Neural network integrity: 99.98%.",
-      dataAiHint: "server status"
+      altText: "Funny server room GIF",
+      dataAiHint: "funny server gif"
     },
     {
       title: "Active Processes",
       icon: <Activity className="h-8 w-8 text-accent" />,
       description: "Data analysis stream active. Threat detection module online.",
-      dataAiHint: "cpu activity"
+      altText: "Funny multitasking GIF",
+      dataAiHint: "funny coding gif"
     },
     {
       title: "Data Analytics Feed",
       icon: <AreaChart className="h-8 w-8 text-primary" />,
       description: "Real-time insights & anomaly detection. Last scan: 2 mins ago.",
-      dataAiHint: "data chart"
+      altText: "Data chart with a twist",
+      dataAiHint: "data chart" // Kept this one more serious for variety
     },
     {
       title: "Cognitive Core Load",
       icon: <BrainCircuit className="h-8 w-8 text-accent" />,
       description: "Current processing load: 67%. Predictive models recalibrating.",
-      dataAiHint: "brain circuit"
+      altText: "Brain working hard GIF",
+      dataAiHint: "funny thinking gif"
     },
   ];
 
@@ -40,9 +44,9 @@ export default function DashboardPage() {
       <div className="w-full">
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">
-            Main Dashboard Overview
+            AI Command Center
           </h1>
-           <p className="text-muted-foreground">Welcome to the AI Command Center.</p>
+           <p className="text-muted-foreground">Welcome to the AI System Interface.</p>
         </header>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
@@ -63,9 +67,9 @@ export default function DashboardPage() {
                   {card.description}
                 </p>
                  <div className="mt-4 h-32 rounded-md bg-input/50 flex items-center justify-center">
-                  <img 
+                  <img
                     src={`https://placehold.co/300x150.png`}
-                    alt={card.title} 
+                    alt={card.altText}
                     className="opacity-30 object-cover rounded-md"
                     data-ai-hint={card.dataAiHint}
                   />

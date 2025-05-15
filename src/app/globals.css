@@ -9,80 +9,80 @@ body {
 
 @layer base {
   :root {
-    /* Tech Corporate Theme */
+    /* Tech Corporate Theme - More Vibrant */
     --background: 220 20% 96%; /* Light Gray */
     --foreground: 220 15% 25%; /* Dark Blue-Gray */
     --card: 0 0% 100%; /* White */
     --card-foreground: 220 15% 25%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 25%;
-    --primary: 210 85% 55%; /* Strong, Modern Blue */
+    --primary: 220 90% 60%; /* Slightly brighter, more vibrant blue */
     --primary-foreground: 0 0% 100%; /* White */
     --secondary: 215 30% 90%; /* Lighter Blue-Gray */
     --secondary-foreground: 215 20% 30%;
     --muted: 220 20% 92%; /* Subtle Gray */
     --muted-foreground: 220 10% 45%;
-    --accent: 160 70% 50%; /* Tech Teal/Green Accent */
+    --accent: 180 75% 45%; /* A slightly deeper, richer teal/cyan */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 20% 88%; /* Light Gray Border */
     --input: 220 20% 90%;
-    --ring: 210 85% 60%; /* Blue for focus rings */
+    --ring: 220 90% 65%; /* Brighter Blue for focus rings */
     --radius: 0.5rem; /* Standard, slightly rounded */
 
-    --chart-1: 210 80% 60%;
-    --chart-2: 160 65% 55%;
-    --chart-3: 200 70% 65%;
-    --chart-4: 225 50% 50%;
-    --chart-5: 240 40% 55%;
+    --chart-1: 220 80% 65%;
+    --chart-2: 180 70% 50%;
+    --chart-3: 210 70% 65%;
+    --chart-4: 230 50% 55%;
+    --chart-5: 240 40% 60%;
 
     --sidebar-background: 220 15% 15%; /* Darker for sidebar */
     --sidebar-foreground: 220 10% 85%;
-    --sidebar-primary: 210 85% 60%;
+    --sidebar-primary: 220 90% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 15% 25%;
     --sidebar-accent-foreground: 220 10% 85%;
     --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 210 85% 65%;
+    --sidebar-ring: 220 90% 70%;
   }
   .dark {
-    /* Dark Tech Corporate Theme */
+    /* Dark Tech Corporate Theme - More Vibrant */
     --background: 220 15% 12%; /* Very Dark Blue-Gray */
     --foreground: 220 10% 88%; /* Light Gray text */
     --card: 220 15% 18%; /* Slightly lighter dark */
     --card-foreground: 220 10% 88%;
     --popover: 220 15% 18%;
     --popover-foreground: 220 10% 88%;
-    --primary: 210 90% 65%; /* Brighter Blue for dark mode */
+    --primary: 220 90% 65%; /* Brighter Blue for dark mode */
     --primary-foreground: 220 5% 10%;
     --secondary: 215 20% 25%; /* Darker Gray-Blue */
     --secondary-foreground: 215 10% 80%;
     --muted: 220 15% 30%;
     --muted-foreground: 220 10% 60%;
-    --accent: 160 75% 55%; /* Brighter Teal/Green for dark mode */
+    --accent: 180 75% 55%; /* Brighter Teal/Cyan for dark mode */
     --accent-foreground: 220 5% 10%;
     --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 15% 30%;
     --input: 220 15% 25%;
-    --ring: 210 90% 70%;
+    --ring: 220 90% 70%;
     --radius: 0.5rem;
 
-    --chart-1: 210 80% 70%;
-    --chart-2: 160 65% 60%;
-    --chart-3: 200 70% 70%;
-    --chart-4: 225 50% 55%;
-    --chart-5: 240 40% 60%;
+    --chart-1: 220 80% 70%;
+    --chart-2: 180 70% 60%;
+    --chart-3: 210 70% 70%;
+    --chart-4: 230 50% 60%;
+    --chart-5: 240 40% 65%;
 
     --sidebar-background: 220 15% 10%;
     --sidebar-foreground: 220 10% 88%;
-    --sidebar-primary: 210 90% 65%;
+    --sidebar-primary: 220 90% 65%;
     --sidebar-primary-foreground: 220 5% 10%;
     --sidebar-accent: 220 15% 20%;
     --sidebar-accent-foreground: 220 10% 88%;
     --sidebar-border: 220 15% 25%;
-    --sidebar-ring: 210 90% 70%;
+    --sidebar-ring: 220 90% 70%;
   }
 }
 

@@ -101,7 +101,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-xl rounded-lg border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl">
+    <Card className="w-full max-w-md shadow-xl rounded-lg border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1">
       <CardHeader className="text-center pt-10 pb-6">
         <CardTitle className="text-4xl font-bold tracking-tight text-foreground">
           AccessHub Portal
@@ -125,7 +125,7 @@ export function LoginForm() {
                       <Input
                         placeholder="your.username@company.com"
                         {...field}
-                        className="py-3 pl-10 text-base rounded-md peer focus:border-primary"
+                        className="py-3 pl-10 text-base rounded-md peer focus:border-primary transition-colors duration-300"
                         aria-label="Username or Email"
                       />
                     </div>
@@ -148,7 +148,7 @@ export function LoginForm() {
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         {...field}
-                        className="py-3 pl-10 pr-12 text-base rounded-md peer focus:border-primary"
+                        className="py-3 pl-10 pr-12 text-base rounded-md peer focus:border-primary transition-colors duration-300"
                         aria-label="Password"
                       />
                       <Button
@@ -174,7 +174,7 @@ export function LoginForm() {
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 text-lg rounded-md shadow-md hover:shadow-lg transition-all duration-200 ease-out group hover:scale-[1.02]"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 text-lg rounded-md shadow-md hover:shadow-lg transition-all duration-300 ease-out group hover:scale-[1.03] hover:-translate-y-0.5"
               disabled={isLoading}
               aria-label="Sign In button"
             >
@@ -183,12 +183,15 @@ export function LoginForm() {
               ) : (
                 "Sign In"
               )}
-              {!isLoading && <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />}
+              {!isLoading && <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5 group-hover:rotate-[10deg]" />}
             </Button>
           </form>
         </Form>
         <div className="mt-8 text-center">
-          <Link href="#" className="text-sm text-muted-foreground hover:text-primary hover:underline font-medium transition-colors">
+          <Link 
+            href="#" 
+            className="text-sm text-muted-foreground hover:text-primary hover:underline font-medium transition-all duration-300 transform hover:scale-105 inline-block"
+          >
             Forgot Password?
           </Link>
         </div>

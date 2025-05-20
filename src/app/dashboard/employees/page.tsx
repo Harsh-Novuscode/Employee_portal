@@ -2,12 +2,13 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { UsersRound, Briefcase, Mail, Workflow, CircleDot } from "lucide-react";
+import { UsersRound, Briefcase, Mail, Workflow, CircleDot, Eye } from "lucide-react";
 
 interface Employee {
   id: string;
@@ -36,7 +37,6 @@ export default function EmployeesPage() {
   const [employees, setEmployees] = React.useState<Employee[]>([]);
 
   React.useEffect(() => {
-    // Simulate fetching data
     const timer = setTimeout(() => {
       setEmployees(mockEmployees);
       setIsLoading(false);
@@ -47,16 +47,15 @@ export default function EmployeesPage() {
   const getStatusVariant = (status: Employee["status"]): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
       case "Active":
-        return "default"; // Will use primary color
+        return "default";
       case "On Leave":
-        return "secondary"; // Will use accent-like color (often yellow/orange by theme)
+        return "secondary";
       case "Terminated":
         return "destructive";
       default:
         return "outline";
     }
   };
-
 
   return (
     <MainLayout>
@@ -95,12 +94,17 @@ export default function EmployeesPage() {
                       <TableHead><Briefcase className="inline-block mr-2 h-4 w-4 text-muted-foreground" />Department</TableHead>
                       <TableHead><Workflow className="inline-block mr-2 h-4 w-4 text-muted-foreground" />Role</TableHead>
                       <TableHead className="text-center"><CircleDot className="inline-block mr-2 h-4 w-4 text-muted-foreground" />Status</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {employees.map((employee) => (
                       <TableRow key={employee.id} className="hover:bg-muted/20 transition-colors">
-                        <TableCell className="font-medium text-foreground/90">{employee.name}</TableCell>
+                        <TableCell className="font-medium">
+                          <Link href={`/dashboard/employees/${employee.id}`} className="text-primary hover:underline hover:text-accent transition-colors">
+                            {employee.name}
+                          </Link>
+                        </TableCell>
                         <TableCell className="text-muted-foreground">{employee.email}</TableCell>
                         <TableCell className="text-muted-foreground">{employee.department}</TableCell>
                         <TableCell className="text-muted-foreground">{employee.role}</TableCell>
@@ -111,11 +115,18 @@ export default function EmployeesPage() {
                               employee.status === 'Active' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
                               employee.status === 'On Leave' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
                               employee.status === 'Terminated' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                              'border-transparent' // Fallback
+                              'border-transparent'
                             }`}
                           >
                             {employee.status}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Link href={`/dashboard/employees/${employee.id}`} passHref>
+                            <button className="p-1.5 text-primary hover:text-accent rounded-md hover:bg-primary/10 transition-all" aria-label={`View details for ${employee.name}`}>
+                              <Eye className="h-4 w-4" />
+                            </button>
+                          </Link>
                         </TableCell>
                       </TableRow>
                     ))}

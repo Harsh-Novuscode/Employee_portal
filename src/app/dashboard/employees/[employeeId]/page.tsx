@@ -9,8 +9,20 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, UserCircle, Mail, Briefcase, Workflow, Laptop, MousePointer, Keyboard, Smartphone, HardDrive, Package, CalendarDays } from "lucide-react"; // Updated MousePointer
+import { ArrowLeft, UserCircle, Mail, Briefcase, Workflow, Laptop, MousePointer, Keyboard, Smartphone, HardDrive, Package, CalendarDays, PackagePlus, Tag, Building, Barcode, CalendarPlus, ListTree, CheckCircle, Loader2 } from "lucide-react";
 import { format, parseISO } from 'date-fns';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
 
 // Mock Data - In a real app, this would come from an API
 interface Employee {
@@ -38,7 +50,7 @@ interface AssetSpecification {
 
 interface EmployeeAsset {
   assetId: string;
-  type: "Laptop" | "Monitor" | "Mouse" | "Keyboard" | "Smartphone" | "Other" | "Webcam";
+  type: "Laptop" | "Monitor" | "Mouse" | "Keyboard" | "Smartphone" | "Webcam" | "Other";
   name: string; // e.g. "MacBook Pro 16-inch"
   make: string;
   model: string;
@@ -69,14 +81,29 @@ const employeeAssetsData: Record<string, EmployeeAsset[]> = {
   ],
 };
 
+const assetTypes: EmployeeAsset["type"][] = ["Laptop", "Monitor", "Mouse", "Keyboard", "Smartphone", "Webcam", "Other"];
+
+const assetFormSchema = z.object({
+  type: z.enum(assetTypes, { required_error: "Asset type is required." }),
+  name: z.string().min(3, { message: "Asset name must be at least 3 characters." }),
+  make: z.string().min(2, { message: "Make is required." }),
+  model: z.string().min(1, { message: "Model is required." }),
+  serialNumber: z.string().optional(),
+  assignedDate: z.date({ required_error: "Assigned date is required." }),
+  purchaseDate: z.date().optional(),
+  specificationsText: z.string().optional(),
+});
+
+type AssetFormValues = z.infer<typeof assetFormSchema>;
+
 const getAssetIcon = (type: EmployeeAsset["type"]) => {
   switch (type) {
     case "Laptop": return <Laptop className="h-5 w-5 text-primary" />;
-    case "Monitor": return <HardDrive className="h-5 w-5 text-primary" />; // Using HardDrive as a proxy for Monitor chassis
+    case "Monitor": return <HardDrive className="h-5 w-5 text-primary" />;
     case "Mouse": return <MousePointer className="h-5 w-5 text-primary" />;
     case "Keyboard": return <Keyboard className="h-5 w-5 text-primary" />;
     case "Smartphone": return <Smartphone className="h-5 w-5 text-primary" />;
-    case "Webcam": return <Package className="h-5 w-5 text-primary" />; // Using a generic package for Webcam for now
+    case "Webcam": return <Package className="h-5 w-5 text-primary" />;
     default: return <Package className="h-5 w-5 text-primary" />;
   }
 };
@@ -84,28 +111,61 @@ const getAssetIcon = (type: EmployeeAsset["type"]) => {
 export default function EmployeeDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
   const employeeId = params.employeeId as string;
 
   const [employee, setEmployee] = React.useState<Employee | null>(null);
   const [assets, setAssets] = React.useState<EmployeeAsset[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
+  const assetForm = useForm<AssetFormValues>({
+    resolver: zodResolver(assetFormSchema),
+    defaultValues: {
+      type: "Laptop",
+      name: "",
+      make: "",
+      model: "",
+      serialNumber: "",
+      specificationsText: "",
+    },
+  });
+
   React.useEffect(() => {
     setIsLoading(true);
-    // Simulate API call
     const timer = setTimeout(() => {
       const foundEmployee = mockEmployees.find(emp => emp.id === employeeId);
       if (foundEmployee) {
         setEmployee(foundEmployee);
         setAssets(employeeAssetsData[employeeId] || []);
       } else {
-        // Handle not found, maybe redirect or show error
-        router.push("/dashboard/employees"); // For now, redirect if not found
+        router.push("/dashboard/employees");
       }
       setIsLoading(false);
     }, 500);
     return () => clearTimeout(timer);
   }, [employeeId, router]);
+
+  const onSubmitAsset = (data: AssetFormValues) => {
+    const newAsset: EmployeeAsset = {
+      assetId: `asset-${Date.now()}`,
+      type: data.type,
+      name: data.name,
+      make: data.make,
+      model: data.model,
+      serialNumber: data.serialNumber || undefined,
+      assignedDate: data.assignedDate.toISOString(),
+      purchaseDate: data.purchaseDate ? data.purchaseDate.toISOString() : undefined,
+      specifications: data.specificationsText 
+        ? [{ key: "Details", value: data.specificationsText }] 
+        : [],
+    };
+    setAssets(prevAssets => [newAsset, ...prevAssets]); // Add to top for visibility
+    assetForm.reset();
+    toast({
+      title: "Asset Assigned",
+      description: `${data.name} has been assigned to ${employee?.name}.`,
+    });
+  };
 
   const getStatusBadgeClasses = (status?: Employee["status"]) => {
     if (!status) return "";
@@ -121,10 +181,7 @@ export default function EmployeeDetailPage() {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-screen">
-          <svg className="animate-spin h-10 w-10 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
           <p className="ml-3 text-muted-foreground text-lg">Loading employee data...</p>
         </div>
       </MainLayout>
@@ -159,6 +216,7 @@ export default function EmployeeDetailPage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Employee Info Card */}
           <Card className="lg:col-span-1 shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5">
             <CardHeader className="items-center">
               {employee.avatarUrl ? (
@@ -185,56 +243,204 @@ export default function EmployeeDetailPage() {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-2 shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-primary">Assigned Assets</CardTitle>
-              <CardDescription>List of equipment and resources assigned to {employee.name}.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {assets.length > 0 ? (
-                <ScrollArea className="max-h-[60vh] pr-2">
-                  <div className="space-y-4">
-                    {assets.map((asset) => (
-                      <div key={asset.assetId} className="p-4 rounded-md border border-border/40 bg-input/30 hover:bg-input/50 transition-colors">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center">
-                            {getAssetIcon(asset.type)}
-                            <h3 className="ml-2 text-lg font-semibold text-accent">{asset.name}</h3>
-                          </div>
-                          <Badge variant="secondary" className="text-xs">{asset.type}</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-1">Make: {asset.make} | Model: {asset.model} {asset.serialNumber && `| S/N: ${asset.serialNumber}`}</p>
-                         <p className="text-xs text-muted-foreground mb-3">
-                           <CalendarDays className="inline-block mr-1.5 h-3.5 w-3.5" />
-                           Assigned: {format(parseISO(asset.assignedDate), "PPP")} 
-                           {asset.purchaseDate && ` (Purchased: ${format(parseISO(asset.purchaseDate), "PPP")})`}
-                         </p>
-                        
-                        <h4 className="text-sm font-medium text-foreground/80 mb-1.5">Specifications:</h4>
-                        <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground pl-1">
-                          {asset.specifications.map(spec => (
-                            <li key={spec.key}><span className="font-medium text-foreground/70">{spec.key}:</span> {spec.value}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              ) : (
-                <div className="flex items-center justify-center h-40 rounded-md bg-input/50 border border-dashed border-border">
-                  <p className="text-muted-foreground">No assets currently assigned to this employee.</p>
+          {/* Asset Management Column */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            {/* Assign New Asset Card */}
+            <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl font-semibold text-primary">Assign New Asset</CardTitle>
+                    <PackagePlus className="h-7 w-7 text-accent" />
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                <CardDescription>Fill in the details to assign a new asset to {employee.name}.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...assetForm}>
+                  <form onSubmit={assetForm.handleSubmit(onSubmitAsset)} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={assetForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center"><Tag className="mr-2 h-4 w-4 text-muted-foreground" />Asset Name</FormLabel>
+                            <FormControl><Input placeholder="e.g., MacBook Pro 16-inch" {...field} className="bg-input focus:bg-input/70" /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={assetForm.control}
+                        name="type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center"><ListTree className="mr-2 h-4 w-4 text-muted-foreground" />Asset Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl><SelectTrigger className="bg-input focus:bg-input/70"><SelectValue placeholder="Select asset type" /></SelectTrigger></FormControl>
+                              <SelectContent className="bg-card border-border text-card-foreground">
+                                {assetTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={assetForm.control}
+                            name="make"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center"><Building className="mr-2 h-4 w-4 text-muted-foreground" />Make</FormLabel>
+                                <FormControl><Input placeholder="e.g., Apple, Dell" {...field} className="bg-input focus:bg-input/70" /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={assetForm.control}
+                            name="model"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center"><Package className="mr-2 h-4 w-4 text-muted-foreground" />Model</FormLabel>
+                                <FormControl><Input placeholder="e.g., A2485, XPS 15" {...field} className="bg-input focus:bg-input/70" /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                     </div>
+                      <FormField
+                        control={assetForm.control}
+                        name="serialNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center"><Barcode className="mr-2 h-4 w-4 text-muted-foreground" />Serial Number (Optional)</FormLabel>
+                            <FormControl><Input placeholder="e.g., C02X1234J1G5" {...field} className="bg-input focus:bg-input/70" /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={assetForm.control}
+                        name="assignedDate"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel className="flex items-center"><CalendarPlus className="mr-2 h-4 w-4 text-muted-foreground" />Assigned Date</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal bg-input hover:bg-input/80", !field.value && "text-muted-foreground")}>
+                                    {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
+                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={assetForm.control}
+                        name="purchaseDate"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel className="flex items-center"><CalendarDays className="mr-2 h-4 w-4 text-muted-foreground" />Purchase Date (Optional)</FormLabel>
+                             <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal bg-input hover:bg-input/80", !field.value && "text-muted-foreground")}>
+                                    {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
+                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} />
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={assetForm.control}
+                      name="specificationsText"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center"><ListTree className="mr-2 h-4 w-4 text-muted-foreground" />Specifications / Notes (Optional)</FormLabel>
+                          <FormControl><Textarea placeholder="e.g., RAM: 16GB, Storage: 512GB SSD, Color: Space Gray" {...field} className="bg-input focus:bg-input/70 min-h-[100px]" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button 
+                      type="submit" 
+                      className="w-full md:w-auto bg-primary hover:bg-primary/80 text-primary-foreground font-semibold py-2.5 px-6 rounded-sm shadow-md hover:shadow-primary/40 transition-all duration-300 ease-out group hover:scale-[1.02] hover:-translate-y-0.5"
+                      disabled={assetForm.formState.isSubmitting}
+                    >
+                      {assetForm.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : "Save Asset"}
+                      {!assetForm.formState.isSubmitting && <CheckCircle className="ml-2 h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+
+            {/* Assigned Assets List Card */}
+            <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold text-primary">Assigned Assets</CardTitle>
+                <CardDescription>List of equipment and resources currently assigned to {employee.name}.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {assets.length > 0 ? (
+                  <ScrollArea className="max-h-[60vh] pr-2">
+                    <div className="space-y-4">
+                      {assets.map((asset) => (
+                        <div key={asset.assetId} className="p-4 rounded-md border border-border/40 bg-input/30 hover:bg-input/50 transition-colors">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center">
+                              {getAssetIcon(asset.type)}
+                              <h3 className="ml-2 text-lg font-semibold text-accent">{asset.name}</h3>
+                            </div>
+                            <Badge variant="secondary" className="text-xs">{asset.type}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-1">Make: {asset.make} | Model: {asset.model} {asset.serialNumber && `| S/N: ${asset.serialNumber}`}</p>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            <CalendarDays className="inline-block mr-1.5 h-3.5 w-3.5" />
+                            Assigned: {format(parseISO(asset.assignedDate), "PPP")}
+                            {asset.purchaseDate && ` (Purchased: ${format(parseISO(asset.purchaseDate), "PPP")})`}
+                          </p>
+                          
+                          {asset.specifications.length > 0 && (
+                            <>
+                                <h4 className="text-sm font-medium text-foreground/80 mb-1.5">Specifications:</h4>
+                                <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground pl-1">
+                                {asset.specifications.map(spec => (
+                                    <li key={spec.key}><span className="font-medium text-foreground/70">{spec.key}:</span> {spec.value}</li>
+                                ))}
+                                </ul>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                ) : (
+                  <div className="flex items-center justify-center h-40 rounded-md bg-input/50 border border-dashed border-border">
+                    <p className="text-muted-foreground">No assets currently assigned to this employee.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </MainLayout>
   );
 }
-
-    
-
-    
-
-    

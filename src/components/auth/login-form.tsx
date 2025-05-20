@@ -5,7 +5,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, Cpu, Shield, Loader2, ArrowRight, Wand2 } from "lucide-react";
+import { Eye, EyeOff, Cpu, Shield, Loader2, ArrowRight, Wand2 } from "lucide-react"; // Changed Icons
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // Added for navigation
 
@@ -96,8 +96,8 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
         loginFailuresInLastHour: 0, // Placeholder, implement actual tracking if needed
       };
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+      // Simulate API call - Reduced delay
+      await new Promise(resolve => setTimeout(resolve, 300));
       const securityResult = await enhanceSecurity(securityInput);
 
       if (securityResult.isSuspicious) {

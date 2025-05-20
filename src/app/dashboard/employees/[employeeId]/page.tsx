@@ -38,7 +38,7 @@ interface AssetSpecification {
 
 interface EmployeeAsset {
   assetId: string;
-  type: "Laptop" | "Monitor" | "Mouse" | "Keyboard" | "Smartphone" | "Other";
+  type: "Laptop" | "Monitor" | "Mouse" | "Keyboard" | "Smartphone" | "Other" | "Webcam";
   name: string; // e.g. "MacBook Pro 16-inch"
   make: string;
   model: string;
@@ -55,7 +55,9 @@ const employeeAssetsData: Record<string, EmployeeAsset[]> = {
     { assetId: "mou001", type: "Mouse", name: "MX Master 3S", make: "Logitech", model: "MX Master 3S", specifications: [{key: "Connectivity", value: "Bluetooth, Logi Bolt"}, {key: "DPI", value: "8000"}], assignedDate: "2023-01-10T00:00:00.000Z" },
     { assetId: "kbd002", type: "Keyboard", name: "MX Keys", make: "Logitech", model: "MX Keys", specifications: [{key: "Type", value: "Wireless"}, {key: "Backlight", value: "Yes"}], assignedDate: "2023-01-10T00:00:00.000Z" },
     { assetId: "phn002", type: "Smartphone", name: "iPhone 15 Pro", make: "Apple", model: "iPhone 15 Pro", specifications: [{key: "Storage", value: "512GB"}, {key: "Color", value: "Titanium Blue"}], assignedDate: "2023-09-20T00:00:00.000Z" },
-     { assetId: "oth001", type: "Other", name: "Docking Station WD19S", make: "Dell", model: "WD19S", specifications: [{key: "Ports", value: "USB-C, HDMI, DP, Ethernet"}], assignedDate: "2023-01-10T00:00:00.000Z" },
+    { assetId: "oth001", type: "Other", name: "Docking Station WD19S", make: "Dell", model: "WD19S", specifications: [{key: "Ports", value: "USB-C, HDMI, DP, Ethernet"}], assignedDate: "2023-01-10T00:00:00.000Z" },
+    { assetId: "mon002", type: "Monitor", name: "Secondary Monitor P2419H", make: "Dell", model: "P2419H", specifications: [{key: "Size", value: "24-inch"}, {key: "Resolution", value: "1920x1080 (FHD)"}, {key: "Panel", value: "IPS"}], assignedDate: "2023-01-15T00:00:00.000Z" },
+    { assetId: "web001", type: "Webcam", name: "C920 Pro HD Webcam", make: "Logitech", model: "C920", specifications: [{key: "Resolution", value: "1080p"}, {key: "Focus", value: "Autofocus"}], assignedDate: "2023-01-10T00:00:00.000Z" },
   ],
   "emp002": [
     { assetId: "lap002", type: "Laptop", name: "Zenbook Pro Duo", make: "ASUS", model: "UX582", serialNumber: "SN-ZENBOOK-002", specifications: [{key: "CPU", value: "Intel Core i7-11800H"}, {key: "RAM", value: "32GB DDR4"}, {key: "Storage", value: "1TB PCIe SSD"}, {key: "Display", value: "Dual Screen"}], assignedDate: "2023-03-15T00:00:00.000Z" },
@@ -74,6 +76,7 @@ const getAssetIcon = (type: EmployeeAsset["type"]) => {
     case "Mouse": return <MousePointer className="h-5 w-5 text-primary" />;
     case "Keyboard": return <Keyboard className="h-5 w-5 text-primary" />;
     case "Smartphone": return <Smartphone className="h-5 w-5 text-primary" />;
+    case "Webcam": return <Package className="h-5 w-5 text-primary" />; // Using a generic package for Webcam for now
     default: return <Package className="h-5 w-5 text-primary" />;
   }
 };
@@ -229,5 +232,7 @@ export default function EmployeeDetailPage() {
     </MainLayout>
   );
 }
+
+    
 
     

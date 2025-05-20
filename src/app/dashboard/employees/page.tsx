@@ -8,7 +8,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { UsersRound, Briefcase, Mail, Workflow, CircleDot, Eye } from "lucide-react";
+import { UsersRound, Briefcase, Mail, Workflow, CircleDot, Eye, FilePenLine, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Employee {
   id: string;
@@ -35,31 +36,43 @@ const mockEmployees: Employee[] = [
 export default function EmployeesPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [employees, setEmployees] = React.useState<Employee[]>([]);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setEmployees(mockEmployees);
       setIsLoading(false);
-    }, 1000);
+    }, 500); // Shorter delay for faster loading perception
     return () => clearTimeout(timer);
   }, []);
 
-  const getStatusVariant = (status: Employee["status"]): "default" | "secondary" | "destructive" | "outline" => {
+  const getStatusBadgeClasses = (status: Employee["status"]) => {
     switch (status) {
-      case "Active":
-        return "default";
-      case "On Leave":
-        return "secondary";
-      case "Terminated":
-        return "destructive";
-      default:
-        return "outline";
+      case "Active": return "bg-green-500/20 text-green-400 border-green-500/30";
+      case "On Leave": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "Terminated": return "bg-red-500/20 text-red-400 border-red-500/30";
+      default: return "border-transparent";
     }
+  };
+
+  const handleEdit = (employee: Employee) => {
+    toast({
+      title: "Edit Action",
+      description: `Editing ${employee.name} (Not implemented).`,
+    });
+  };
+
+  const handleDelete = (employee: Employee) => {
+    toast({
+      variant: "destructive",
+      title: "Delete Action",
+      description: `Deleting ${employee.name} (Not implemented).`,
+    });
   };
 
   return (
     <MainLayout>
-      <div className="w-full">
+      <div className="w-full animate-fade-in-slide-up">
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">
             Employee Roster
@@ -67,7 +80,7 @@ export default function EmployeesPage() {
           <p className="text-muted-foreground">View and manage employee details within the AI Command Center.</p>
         </header>
 
-        <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 animate-fade-in-slide-up">
+        <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xl font-semibold text-primary">Employee Database</CardTitle>
             <UsersRound className="h-8 w-8 text-accent" />
@@ -87,7 +100,7 @@ export default function EmployeesPage() {
             ) : employees.length > 0 ? (
               <ScrollArea className="max-h-[60vh] rounded-md border border-border/30">
                 <Table>
-                  <TableHeader className="sticky top-0 bg-card/95 backdrop-blur-sm">
+                  <TableHeader className="sticky top-0 bg-card/95 backdrop-blur-sm z-10">
                     <TableRow>
                       <TableHead className="w-[200px]"><UsersRound className="inline-block mr-2 h-4 w-4 text-muted-foreground" />Name</TableHead>
                       <TableHead><Mail className="inline-block mr-2 h-4 w-4 text-muted-foreground" />Email</TableHead>
@@ -105,28 +118,37 @@ export default function EmployeesPage() {
                             {employee.name}
                           </Link>
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{employee.email}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs">{employee.email}</TableCell>
                         <TableCell className="text-muted-foreground">{employee.department}</TableCell>
                         <TableCell className="text-muted-foreground">{employee.role}</TableCell>
                         <TableCell className="text-center">
                           <Badge 
-                            variant={getStatusVariant(employee.status)}
-                            className={`text-xs ${
-                              employee.status === 'Active' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                              employee.status === 'On Leave' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                              employee.status === 'Terminated' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                              'border-transparent'
-                            }`}
+                            variant="outline"
+                            className={`text-xs px-2 py-0.5 ${getStatusBadgeClasses(employee.status)}`}
                           >
                             {employee.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center space-x-1">
                           <Link href={`/dashboard/employees/${employee.id}`} passHref>
                             <button className="p-1.5 text-primary hover:text-accent rounded-md hover:bg-primary/10 transition-all" aria-label={`View details for ${employee.name}`}>
                               <Eye className="h-4 w-4" />
                             </button>
                           </Link>
+                          <button 
+                            onClick={() => handleEdit(employee)} 
+                            className="p-1.5 text-blue-400 hover:text-blue-300 rounded-md hover:bg-blue-500/10 transition-all" 
+                            aria-label={`Edit ${employee.name}`}
+                          >
+                            <FilePenLine className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(employee)} 
+                            className="p-1.5 text-red-400 hover:text-red-300 rounded-md hover:bg-red-500/10 transition-all" 
+                            aria-label={`Delete ${employee.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -144,5 +166,4 @@ export default function EmployeesPage() {
     </MainLayout>
   );
 }
-
     

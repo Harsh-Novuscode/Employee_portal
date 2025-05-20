@@ -12,8 +12,6 @@ interface DashboardCardData {
   title: string;
   icon: JSX.Element;
   description: string | React.ReactNode;
-  altText: string;
-  dataAiHint: string;
   id: string;
 }
 
@@ -41,24 +39,18 @@ export default function DashboardPage() {
       title: "System Status",
       icon: <ServerCog className="h-8 w-8 text-primary" />,
       description: "All systems operational. Neural network integrity: 99.98%.",
-      altText: "Funny server room GIF",
-      dataAiHint: "funny server gif"
     },
     {
       id: "active-processes",
       title: "Active Processes",
       icon: <Activity className="h-8 w-8 text-accent" />,
       description: "Data analysis stream active. Threat detection module online.",
-      altText: "Funny multitasking GIF",
-      dataAiHint: "funny coding gif"
     },
     {
       id: "data-analytics",
       title: "Data Analytics Feed",
       icon: <AreaChart className="h-8 w-8 text-primary" />,
       description: "Real-time insights & anomaly detection. Last scan: 2 mins ago.",
-      altText: "Data chart with a twist",
-      dataAiHint: "data chart"
     },
     {
       id: "cognitive-core",
@@ -72,16 +64,12 @@ export default function DashboardPage() {
           </div>
         </>
       ),
-      altText: "Brain working hard GIF",
-      dataAiHint: "funny thinking gif"
     },
     {
       id: "ai-insight",
       title: "AI Insight of the Day",
       icon: <Lightbulb className="h-8 w-8 text-primary" />,
       description: currentInsight || "Loading insight...",
-      altText: "AI brainwave",
-      dataAiHint: "artificial intelligence concept"
     }
   ];
 
@@ -112,14 +100,7 @@ export default function DashboardPage() {
                 <div className="text-sm text-muted-foreground"> {/* Wrapped description in a div for consistent styling */}
                   {card.description}
                 </div>
-                 <div className="mt-4 h-32 rounded-md bg-input/50 flex items-center justify-center">
-                  <img
-                    src={`https://placehold.co/300x150.png`}
-                    alt={card.altText}
-                    className="opacity-30 object-cover rounded-md"
-                    data-ai-hint={card.dataAiHint}
-                  />
-                 </div>
+                 {/* Removed image section */}
               </CardContent>
             </Card>
           ))}

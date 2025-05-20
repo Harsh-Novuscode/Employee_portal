@@ -21,7 +21,7 @@ import {
   CalendarDays,
   LogOut,
   UserCircle2,
-  PanelLeft,
+  UsersRound, // Added UsersRound
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,12 +34,17 @@ const menuItems = [
   {
     href: "/dashboard/attendance",
     label: "Attendance",
-    icon: Users,
+    icon: Users, // Kept Users for Attendance as per previous setup
   },
   {
     href: "/dashboard/leave",
     label: "Leave Management",
     icon: CalendarDays,
+  },
+  {
+    href: "/dashboard/employees", // New Employees item
+    label: "Employees",
+    icon: UsersRound,
   },
 ];
 

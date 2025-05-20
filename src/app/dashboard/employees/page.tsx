@@ -33,6 +33,11 @@ const mockEmployees: Employee[] = [
   { id: "emp008", name: "David Kim", email: "d.kim@aicorp.com", department: "HR", role: "HR Specialist", status: "Terminated" },
   { id: "emp009", name: "Chloe Davis", email: "c.davis@aicorp.com", department: "Marketing", role: "Marketing Lead", status: "Active" },
   { id: "emp010", name: "Raj Patel", email: "r.patel@aicorp.com", department: "Engineering", role: "DevOps Engineer", status: "Active" },
+  { id: "emp011", name: "Olivia Garcia", email: "o.garcia@aicorp.com", department: "AI Research", role: "Research Assistant", status: "Active" },
+  { id: "emp012", name: "Noah Smith", email: "n.smith@aicorp.com", department: "Engineering", role: "Junior Developer", status: "On Leave" },
+  { id: "emp013", name: "Emma Wilson", email: "e.wilson@aicorp.com", department: "Product", role: "UX Designer", status: "Active" },
+  { id: "emp014", name: "Liam Brown", email: "l.brown@aicorp.com", department: "Operations", role: "IT Support", status: "Active" },
+  { id: "emp015", name: "Ava Jones", email: "a.jones@aicorp.com", department: "Data Science", role: "Machine Learning Engineer", status: "Terminated" },
 ];
 
 export default function EmployeesPage() {
@@ -170,4 +175,6 @@ export default function EmployeesPage() {
     </MainLayout>
   );
 }
+    
+
     

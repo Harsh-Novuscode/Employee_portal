@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, UserCircle, Mail, Briefcase, Workflow, CircleDot, Laptop, MousePointerSquare, Keyboard, Smartphone, HardDrive, MemoryStick, Power, CalendarDays, Package } from "lucide-react";
+import { ArrowLeft, UserCircle, Mail, Briefcase, Workflow, CircleDot, Laptop, MousePointer, Keyboard, Smartphone, HardDrive, MemoryStick, Power, CalendarDays, Package } from "lucide-react";
 import { format, parseISO } from 'date-fns';
 
 // Mock Data - In a real app, this would come from an API
@@ -68,7 +68,7 @@ const getAssetIcon = (type: EmployeeAsset["type"]) => {
   switch (type) {
     case "Laptop": return <Laptop className="h-5 w-5 text-primary" />;
     case "Monitor": return <HardDrive className="h-5 w-5 text-primary" />; // Using HardDrive as a proxy for Monitor chassis
-    case "Mouse": return <MousePointerSquare className="h-5 w-5 text-primary" />;
+    case "Mouse": return <MousePointer className="h-5 w-5 text-primary" />;
     case "Keyboard": return <Keyboard className="h-5 w-5 text-primary" />;
     case "Smartphone": return <Smartphone className="h-5 w-5 text-primary" />;
     default: return <Package className="h-5 w-5 text-primary" />;
@@ -222,5 +222,7 @@ export default function EmployeeDetailPage() {
     </MainLayout>
   );
 }
+
+    
 
     

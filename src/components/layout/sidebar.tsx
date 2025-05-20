@@ -21,7 +21,8 @@ import {
   CalendarDays,
   LogOut,
   UserCircle2,
-  UsersRound, // Added UsersRound
+  UsersRound,
+  FileText, // Added FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +35,7 @@ const menuItems = [
   {
     href: "/dashboard/attendance",
     label: "Attendance",
-    icon: Users, // Kept Users for Attendance as per previous setup
+    icon: Users,
   },
   {
     href: "/dashboard/leave",
@@ -42,9 +43,14 @@ const menuItems = [
     icon: CalendarDays,
   },
   {
-    href: "/dashboard/employees", // New Employees item
+    href: "/dashboard/employees",
     label: "Employees",
     icon: UsersRound,
+  },
+  { // New Policy Item
+    href: "/dashboard/policy",
+    label: "Policy",
+    icon: FileText,
   },
 ];
 
@@ -54,7 +60,6 @@ export function AppSidebar() {
   const { state, open, setOpen } = useSidebar();
 
   const handleLogout = () => {
-    // Here you might also want to clear any session/token
     router.push("/");
   };
 

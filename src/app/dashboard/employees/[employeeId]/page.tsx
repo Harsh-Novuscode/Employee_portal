@@ -91,7 +91,7 @@ const assetFormSchema = z.object({
   serialNumber: z.string().optional(),
   assignedDate: z.date({ required_error: "Assigned date is required." }),
   purchaseDate: z.date().optional(),
-  specificationsText: z.string().optional(),
+  specificationsText: z.string().optional(), // Used for Textarea input
 });
 
 type AssetFormValues = z.infer<typeof assetFormSchema>;
@@ -99,11 +99,11 @@ type AssetFormValues = z.infer<typeof assetFormSchema>;
 const getAssetIcon = (type: EmployeeAsset["type"]) => {
   switch (type) {
     case "Laptop": return <Laptop className="h-5 w-5 text-primary" />;
-    case "Monitor": return <HardDrive className="h-5 w-5 text-primary" />;
+    case "Monitor": return <HardDrive className="h-5 w-5 text-primary" />; // Using HardDrive for Monitor for now
     case "Mouse": return <MousePointer className="h-5 w-5 text-primary" />;
     case "Keyboard": return <Keyboard className="h-5 w-5 text-primary" />;
     case "Smartphone": return <Smartphone className="h-5 w-5 text-primary" />;
-    case "Webcam": return <Package className="h-5 w-5 text-primary" />;
+    case "Webcam": return <Package className="h-5 w-5 text-primary" />; // Changed to Package, webcam icon might not be ideal
     default: return <Package className="h-5 w-5 text-primary" />;
   }
 };
@@ -132,13 +132,15 @@ export default function EmployeeDetailPage() {
 
   React.useEffect(() => {
     setIsLoading(true);
+    // Simulate API call
     const timer = setTimeout(() => {
       const foundEmployee = mockEmployees.find(emp => emp.id === employeeId);
       if (foundEmployee) {
         setEmployee(foundEmployee);
         setAssets(employeeAssetsData[employeeId] || []);
       } else {
-        router.push("/dashboard/employees");
+        // Handle employee not found, e.g., redirect or show error
+        router.push("/dashboard/employees"); // Or a 404 page
       }
       setIsLoading(false);
     }, 500);
@@ -147,7 +149,7 @@ export default function EmployeeDetailPage() {
 
   const onSubmitAsset = (data: AssetFormValues) => {
     const newAsset: EmployeeAsset = {
-      assetId: `asset-${Date.now()}`,
+      assetId: `asset-${Date.now()}`, // Simple unique ID
       type: data.type,
       name: data.name,
       make: data.make,
@@ -155,17 +157,20 @@ export default function EmployeeDetailPage() {
       serialNumber: data.serialNumber || undefined,
       assignedDate: data.assignedDate.toISOString(),
       purchaseDate: data.purchaseDate ? data.purchaseDate.toISOString() : undefined,
+      // For simplicity, store textarea content as a single "Details" specification
       specifications: data.specificationsText 
         ? [{ key: "Details", value: data.specificationsText }] 
         : [],
     };
-    setAssets(prevAssets => [newAsset, ...prevAssets]); // Add to top for visibility
+
+    setAssets(prevAssets => [newAsset, ...prevAssets].sort((a,b) => parseISO(b.assignedDate).getTime() - parseISO(a.assignedDate).getTime() ));
     assetForm.reset();
     toast({
       title: "Asset Assigned",
       description: `${data.name} has been assigned to ${employee?.name}.`,
     });
   };
+
 
   const getStatusBadgeClasses = (status?: Employee["status"]) => {
     if (!status) return "";

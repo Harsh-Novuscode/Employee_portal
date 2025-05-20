@@ -96,8 +96,6 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
         loginFailuresInLastHour: 0, // Placeholder, implement actual tracking if needed
       };
 
-      // Simulate API call - Reduced delay
-      await new Promise(resolve => setTimeout(resolve, 300));
       const securityResult = await enhanceSecurity(securityInput);
 
       if (securityResult.isSuspicious) {
@@ -119,10 +117,10 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
             </div>
           ),
           description: "Welcome to the AI System Interface. Access protocols initiated.",
-          duration: 3000, // Reduced duration for quicker redirect feel
+          duration: 3000,
         });
-        form.reset(); // Reset form fields
-        router.push('/dashboard'); // Redirect to dashboard
+        form.reset(); 
+        router.push('/dashboard'); 
       }
     } catch (error) {
       console.error("Auth error:", error);
@@ -138,13 +136,13 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
   };
 
   return (
-    <Card className="w-full h-full flex flex-col justify-center shadow-xl rounded-md border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/70 hover:-translate-y-1 animate-fade-in-slide-up">
+    <Card className="w-full h-full flex flex-col justify-center shadow-2xl rounded-md border border-primary/30 bg-card transition-all duration-300 hover:border-primary/70 hover:-translate-y-1 animate-fade-in-slide-up hover:shadow-primary/20">
       <CardHeader className="text-center pt-10 pb-6">
-        <CardTitle className="text-4xl font-bold tracking-tight text-primary">
-          AI System Interface
+        <CardTitle className="text-5xl font-bold tracking-tight text-primary">
+          AccessHub Portal
         </CardTitle>
         <CardDescription className="pt-2 text-md text-muted-foreground">
-          Authenticate to access neural network.
+          Authenticate to access AI-powered insights.
         </CardDescription>
       </CardHeader>
       <CardContent className="px-8 pb-8">
@@ -196,13 +194,13 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                         autoComplete="new-password"
                       />
                     </FormControl>
-                    <Button
+                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-primary"
                       onClick={toggleShowPassword}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={showPassword ? "Show Auth Key" : "Hide Auth Key"}
                     >
                       {showPassword ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                     </Button>
@@ -216,6 +214,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
                             "h-2 flex-1 rounded-sm transition-all duration-150 ease-in-out",
                             field.value && field.value.length > index ? "bg-primary animate-pulse" : "bg-muted/30"
                           )}
+                          style={{ animationDelay: `${index * 50}ms` }}
                         />
                       ))}
                     </div>
@@ -231,11 +230,7 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
               disabled={isLoading}
               aria-label="Initiate Connection button"
             >
-              {isLoading ? (
-                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-              ) : (
-                "Initiate Connection"
-              )}
+              {isLoading ? "Processing..." : "Initiate Connection"}
               {!isLoading && <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1.5 group-hover:rotate-[10deg]" />}
             </Button>
           </form>
@@ -243,13 +238,13 @@ export function LoginForm({ setIsTyping }: LoginFormProps) {
         <div className="mt-10 text-center">
           <Link
             href="#"
-            className="text-sm text-muted-foreground hover:text-accent hover:underline font-medium transition-all duration-300 transform hover:scale-105 inline-block hover:drop-shadow-[0_0_5px_hsl(var(--accent))]"
+            className="text-sm text-muted-foreground hover:text-primary hover:underline font-medium transition-all duration-300 transform hover:scale-105 inline-block hover:drop-shadow-[0_0_5px_hsl(var(--primary))]"
             onClick={(e) => {
               e.preventDefault();
               toast({ title: "System Protocol", description: "Auth Key recovery sequence initiated. Check secure channel." });
             }}
           >
-            Auth Key Recovery Protocol
+            Forgot Auth Key?
           </Link>
         </div>
       </CardContent>

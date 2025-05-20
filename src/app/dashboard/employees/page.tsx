@@ -107,7 +107,8 @@ export default function EmployeesPage() {
                     <p className="ml-3 text-muted-foreground">Loading employee data...</p>
                 </div>
             ) : employees.length > 0 ? (
-              <ScrollArea className="max-h-[60vh] rounded-md border border-border/30">
+              // This ScrollArea makes the table content scrollable
+              <ScrollArea className="max-h-96 rounded-md border border-border/30">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card/95 backdrop-blur-sm z-10">
                     <TableRow>

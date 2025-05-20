@@ -99,11 +99,11 @@ type AssetFormValues = z.infer<typeof assetFormSchema>;
 const getAssetIcon = (type: EmployeeAsset["type"]) => {
   switch (type) {
     case "Laptop": return <Laptop className="h-5 w-5 text-primary" />;
-    case "Monitor": return <HardDrive className="h-5 w-5 text-primary" />; // Using HardDrive for Monitor for now
+    case "Monitor": return <HardDrive className="h-5 w-5 text-primary" />;
     case "Mouse": return <MousePointer className="h-5 w-5 text-primary" />;
     case "Keyboard": return <Keyboard className="h-5 w-5 text-primary" />;
     case "Smartphone": return <Smartphone className="h-5 w-5 text-primary" />;
-    case "Webcam": return <Package className="h-5 w-5 text-primary" />; // Changed to Package, webcam icon might not be ideal
+    case "Webcam": return <Package className="h-5 w-5 text-primary" />; 
     default: return <Package className="h-5 w-5 text-primary" />;
   }
 };
@@ -157,9 +157,11 @@ export default function EmployeeDetailPage() {
       serialNumber: data.serialNumber || undefined,
       assignedDate: data.assignedDate.toISOString(),
       purchaseDate: data.purchaseDate ? data.purchaseDate.toISOString() : undefined,
-      // For simplicity, store textarea content as a single "Details" specification
       specifications: data.specificationsText 
-        ? [{ key: "Details", value: data.specificationsText }] 
+        ? data.specificationsText.split('\n').map(line => {
+            const [key, ...valueParts] = line.split(':');
+            return { key: key.trim(), value: valueParts.join(':').trim() };
+          }).filter(spec => spec.key && spec.value)
         : [],
     };
 
@@ -378,7 +380,7 @@ export default function EmployeeDetailPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center"><ListTree className="mr-2 h-4 w-4 text-muted-foreground" />Specifications / Notes (Optional)</FormLabel>
-                          <FormControl><Textarea placeholder="e.g., RAM: 16GB, Storage: 512GB SSD, Color: Space Gray" {...field} className="bg-input focus:bg-input/70 min-h-[100px]" /></FormControl>
+                          <FormControl><Textarea placeholder="e.g., RAM: 16GB, Storage: 512GB SSD, Color: Space Gray&#xA;Each specification on a new line, format: Key: Value" {...field} className="bg-input focus:bg-input/70 min-h-[100px]" /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -404,7 +406,7 @@ export default function EmployeeDetailPage() {
               </CardHeader>
               <CardContent>
                 {assets.length > 0 ? (
-                  <ScrollArea className="max-h-[60vh] pr-2">
+                  <ScrollArea className="max-h-96 pr-2">
                     <div className="space-y-4">
                       {assets.map((asset) => (
                         <div key={asset.assetId} className="p-4 rounded-md border border-border/40 bg-input/30 hover:bg-input/50 transition-colors">
@@ -449,3 +451,5 @@ export default function EmployeeDetailPage() {
     </MainLayout>
   );
 }
+
+

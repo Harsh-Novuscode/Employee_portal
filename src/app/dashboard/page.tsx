@@ -3,10 +3,10 @@
 
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ServerCog, Activity, AreaChart, BrainCircuit, Lightbulb } from "lucide-react";
+import { BrainCircuit, Lightbulb } from "lucide-react"; // Removed ServerCog, Activity, AreaChart
 import { MainLayout } from "@/components/layout/main-layout";
 import { QuizCard } from "@/components/dashboard/quiz-card";
-import { Progress } from "@/components/ui/progress"; // Import Progress component
+import { Progress } from "@/components/ui/progress";
 
 interface DashboardCardData {
   title: string;
@@ -34,24 +34,6 @@ export default function DashboardPage() {
   }, []);
 
   const dashboardCards: DashboardCardData[] = [
-    {
-      id: "system-status",
-      title: "System Status",
-      icon: <ServerCog className="h-8 w-8 text-primary" />,
-      description: "All systems operational. Neural network integrity: 99.98%.",
-    },
-    {
-      id: "active-processes",
-      title: "Active Processes",
-      icon: <Activity className="h-8 w-8 text-accent" />,
-      description: "Data analysis stream active. Threat detection module online.",
-    },
-    {
-      id: "data-analytics",
-      title: "Data Analytics Feed",
-      icon: <AreaChart className="h-8 w-8 text-primary" />,
-      description: "Real-time insights & anomaly detection. Last scan: 2 mins ago.",
-    },
     {
       id: "cognitive-core",
       title: "Cognitive Core Load",
@@ -87,7 +69,7 @@ export default function DashboardPage() {
           {dashboardCards.map((card, index) => (
             <Card
               key={card.id}
-              className="shadow-xl rounded-md border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/70 hover:-translate-y-1 animate-fade-in-slide-up flex flex-col" // Added flex flex-col
+              className="shadow-xl rounded-md border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/70 hover:-translate-y-1 animate-fade-in-slide-up flex flex-col"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -96,17 +78,16 @@ export default function DashboardPage() {
                 </CardTitle>
                 {card.icon}
               </CardHeader>
-              <CardContent className="flex-grow"> {/* Added flex-grow */}
-                <div className="text-sm text-muted-foreground"> {/* Wrapped description in a div for consistent styling */}
+              <CardContent className="flex-grow">
+                <div className="text-sm text-muted-foreground">
                   {card.description}
                 </div>
-                 {/* Removed image section */}
               </CardContent>
             </Card>
           ))}
-           <div className="lg:col-span-1">
+           <div className="lg:col-span-1"> {/* Adjusted span if needed based on card count */}
             <QuizCard
-              className="shadow-xl rounded-md border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/70 hover:-translate-y-1 animate-fade-in-slide-up h-full" // Added h-full
+              className="shadow-xl rounded-md border border-border/60 bg-card transition-all duration-300 hover:shadow-2xl hover:border-primary/70 hover:-translate-y-1 animate-fade-in-slide-up h-full"
               style={{ animationDelay: `${dashboardCards.length * 100}ms` }}
             />
           </div>

@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, UserCircle, Mail, Briefcase, Workflow, CircleDot, Laptop, MousePointer, Keyboard, Smartphone, HardDrive, MemoryStick, Power, CalendarDays, Package } from "lucide-react";
+import { ArrowLeft, UserCircle, Mail, Briefcase, Workflow, Laptop, MousePointer, Keyboard, Smartphone, HardDrive, Package, CalendarDays } from "lucide-react"; // Updated MousePointer
 import { format, parseISO } from 'date-fns';
 
 // Mock Data - In a real app, this would come from an API
@@ -53,6 +53,9 @@ const employeeAssetsData: Record<string, EmployeeAsset[]> = {
     { assetId: "lap001", type: "Laptop", name: "Dev Laptop XPS-15", make: "Dell", model: "XPS 15 9520", serialNumber: "SN-XPS15-001", specifications: [{key: "CPU", value: "Intel Core i9-12900HK"}, {key: "RAM", value: "64GB DDR5"}, {key: "Storage", value: "2TB NVMe SSD"}, {key: "GPU", value: "NVIDIA GeForce RTX 3050 Ti"}], assignedDate: "2023-01-10T00:00:00.000Z", purchaseDate: "2022-12-15T00:00:00.000Z" },
     { assetId: "mon001", type: "Monitor", name: "Primary Monitor U2723QE", make: "Dell", model: "UltraSharp U2723QE", specifications: [{key: "Size", value: "27-inch"}, {key: "Resolution", value: "3840x2160 (4K)"}, {key: "Panel", value: "IPS Black"}], assignedDate: "2023-01-10T00:00:00.000Z" },
     { assetId: "mou001", type: "Mouse", name: "MX Master 3S", make: "Logitech", model: "MX Master 3S", specifications: [{key: "Connectivity", value: "Bluetooth, Logi Bolt"}, {key: "DPI", value: "8000"}], assignedDate: "2023-01-10T00:00:00.000Z" },
+    { assetId: "kbd002", type: "Keyboard", name: "MX Keys", make: "Logitech", model: "MX Keys", specifications: [{key: "Type", value: "Wireless"}, {key: "Backlight", value: "Yes"}], assignedDate: "2023-01-10T00:00:00.000Z" },
+    { assetId: "phn002", type: "Smartphone", name: "iPhone 15 Pro", make: "Apple", model: "iPhone 15 Pro", specifications: [{key: "Storage", value: "512GB"}, {key: "Color", value: "Titanium Blue"}], assignedDate: "2023-09-20T00:00:00.000Z" },
+     { assetId: "oth001", type: "Other", name: "Docking Station WD19S", make: "Dell", model: "WD19S", specifications: [{key: "Ports", value: "USB-C, HDMI, DP, Ethernet"}], assignedDate: "2023-01-10T00:00:00.000Z" },
   ],
   "emp002": [
     { assetId: "lap002", type: "Laptop", name: "Zenbook Pro Duo", make: "ASUS", model: "UX582", serialNumber: "SN-ZENBOOK-002", specifications: [{key: "CPU", value: "Intel Core i7-11800H"}, {key: "RAM", value: "32GB DDR4"}, {key: "Storage", value: "1TB PCIe SSD"}, {key: "Display", value: "Dual Screen"}], assignedDate: "2023-03-15T00:00:00.000Z" },
@@ -198,7 +201,11 @@ export default function EmployeeDetailPage() {
                           <Badge variant="secondary" className="text-xs">{asset.type}</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground mb-1">Make: {asset.make} | Model: {asset.model} {asset.serialNumber && `| S/N: ${asset.serialNumber}`}</p>
-                         <p className="text-xs text-muted-foreground mb-3">Assigned: {format(parseISO(asset.assignedDate), "PPP")} {asset.purchaseDate && `(Purchased: ${format(parseISO(asset.purchaseDate), "PPP")})`}</p>
+                         <p className="text-xs text-muted-foreground mb-3">
+                           <CalendarDays className="inline-block mr-1.5 h-3.5 w-3.5" />
+                           Assigned: {format(parseISO(asset.assignedDate), "PPP")} 
+                           {asset.purchaseDate && ` (Purchased: ${format(parseISO(asset.purchaseDate), "PPP")})`}
+                         </p>
                         
                         <h4 className="text-sm font-medium text-foreground/80 mb-1.5">Specifications:</h4>
                         <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground pl-1">
@@ -222,7 +229,5 @@ export default function EmployeeDetailPage() {
     </MainLayout>
   );
 }
-
-    
 
     

@@ -3,12 +3,14 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { UsersRound, Briefcase, Mail, Workflow, CircleDot, Eye, FilePenLine, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { UsersRound, Briefcase, Mail, Workflow, CircleDot, Eye, FilePenLine, Trash2, UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Employee {
@@ -37,12 +39,13 @@ export default function EmployeesPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setEmployees(mockEmployees);
       setIsLoading(false);
-    }, 500); // Shorter delay for faster loading perception
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -81,20 +84,21 @@ export default function EmployeesPage() {
         </header>
 
         <Card className="shadow-xl rounded-md border border-border/60 bg-card hover:border-primary/70 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-semibold text-primary">Employee Database</CardTitle>
-            <UsersRound className="h-8 w-8 text-accent" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-semibold text-primary">Employee Database</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                A comprehensive list of all personnel integrated into the system.
+              </CardDescription>
+            </div>
+            <Button onClick={() => router.push('/dashboard/employees/add')} className="bg-primary hover:bg-primary/80">
+              <UserPlus className="mr-2 h-4 w-4" /> Add New Employee
+            </Button>
           </CardHeader>
           <CardContent>
-            <CardDescription className="text-sm text-muted-foreground mb-6">
-              A comprehensive list of all personnel integrated into the system.
-            </CardDescription>
             {isLoading ? (
                 <div className="flex items-center justify-center h-60">
-                    <svg className="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <Loader2 className="animate-spin h-8 w-8 text-primary" />
                     <p className="ml-3 text-muted-foreground">Loading employee data...</p>
                 </div>
             ) : employees.length > 0 ? (

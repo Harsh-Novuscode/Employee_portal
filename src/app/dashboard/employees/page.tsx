@@ -38,6 +38,22 @@ const mockEmployees: Employee[] = [
   { id: "emp013", name: "Emma Wilson", email: "e.wilson@aicorp.com", department: "Product", role: "UX Designer", status: "Active" },
   { id: "emp014", name: "Liam Brown", email: "l.brown@aicorp.com", department: "Operations", role: "IT Support", status: "Active" },
   { id: "emp015", name: "Ava Jones", email: "a.jones@aicorp.com", department: "Data Science", role: "Machine Learning Engineer", status: "Terminated" },
+  // Adding more employees to ensure scrollbar visibility
+  { id: "emp016", name: "James White", email: "j.white@aicorp.com", department: "Engineering", role: "QA Engineer", status: "Active" },
+  { id: "emp017", name: "Mia Harris", email: "m.harris@aicorp.com", department: "Marketing", role: "Content Creator", status: "Active" },
+  { id: "emp018", name: "Ethan Clark", email: "e.clark@aicorp.com", department: "AI Research", role: "Researcher", status: "On Leave" },
+  { id: "emp019", name: "Isabella Lewis", email: "i.lewis@aicorp.com", department: "Product", role: "UI Designer", status: "Active" },
+  { id: "emp020", name: "Alexander Walker", email: "a.walker@aicorp.com", department: "Operations", role: "Network Engineer", status: "Active" },
+  { id: "emp021", name: "Charlotte Hall", email: "c.hall@aicorp.com", department: "Data Science", role: "Data Scientist", status: "Active" },
+  { id: "emp022", name: "Daniel Allen", email: "d.allen@aicorp.com", department: "Engineering", role: "Backend Developer", status: "Terminated" },
+  { id: "emp023", name: "Grace Young", email: "g.young@aicorp.com", department: "HR", role: "Recruiter", status: "Active" },
+  { id: "emp024", name: "Henry King", email: "h.king@aicorp.com", department: "Marketing", role: "SEO Specialist", status: "On Leave" },
+  { id: "emp025", name: "Sofia Scott", email: "s.scott@aicorp.com", department: "AI Ethics", role: "Policy Analyst", status: "Active" },
+  { id: "emp026", name: "William Green", email: "w.green@aicorp.com", department: "Engineering", role: "Frontend Developer", status: "Active" },
+  { id: "emp027", name: "Ella Adams", email: "e.adams@aicorp.com", department: "Product", role: "Business Analyst", status: "Active" },
+  { id: "emp028", name: "Benjamin Baker", email: "b.baker@aicorp.com", department: "Operations", role: "Security Analyst", status: "Active" },
+  { id: "emp029", name: "Lily Nelson", email: "l.nelson@aicorp.com", department: "Data Science", role: "BI Developer", status: "Terminated" },
+  { id: "emp030", name: "Samuel Carter", email: "s.carter@aicorp.com", department: "AI Research", role: "AI Engineer", status: "Active" },
 ];
 
 export default function EmployeesPage() {
@@ -107,7 +123,6 @@ export default function EmployeesPage() {
                     <p className="ml-3 text-muted-foreground">Loading employee data...</p>
                 </div>
             ) : employees.length > 0 ? (
-              // This ScrollArea makes the table content scrollable
               <ScrollArea className="max-h-96 rounded-md border border-border/30">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card/95 backdrop-blur-sm z-10">
@@ -176,6 +191,4 @@ export default function EmployeesPage() {
     </MainLayout>
   );
 }
-    
-
     
